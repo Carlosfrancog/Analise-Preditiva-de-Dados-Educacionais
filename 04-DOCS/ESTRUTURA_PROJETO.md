@@ -1,3 +1,7 @@
+[← Raiz](../README.md) · [Índice](INDICE_DOCUMENTACAO.md) · [Arquitetura](ARQUITETURA_SISTEMA.md) · [Cálculos ML](DOCUMENTACAO_CALCULOS.md) · [Guia Completo](GUIA_COMPLETO.md)
+
+---
+
 # 📁 ESTRUTURA DE ORGANIZAÇÃO DO PROJETO EDUCACIONAL
 
 **Versão:** 2.1  

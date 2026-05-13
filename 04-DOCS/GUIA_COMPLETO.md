@@ -1,3 +1,7 @@
+[← Raiz](../README.md) · [Índice](INDICE_DOCUMENTACAO.md) · [Início Rápido](INICIO_RAPIDO.md) · [Resumo Executivo](RESUMO_EXECUTIVO.md) · [Arquitetura](ARQUITETURA_SISTEMA.md) · [Cálculos ML](DOCUMENTACAO_CALCULOS.md)
+
+---
+
 # 🚀 GUIA COMPLETO - SISTEMA DE MACHINE LEARNING PARA PREVISÃO ACADÊMICA
 
 ## 📋 Sumário

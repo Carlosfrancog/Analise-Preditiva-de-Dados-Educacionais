@@ -1,3 +1,7 @@
+[← Raiz](../README.md) · [Índice](INDICE_DOCUMENTACAO.md) · [Resumo Executivo](RESUMO_EXECUTIVO.md) · [Cálculos ML](DOCUMENTACAO_CALCULOS.md) · [Guia Completo](GUIA_COMPLETO.md) · [Guia Predições](GUIA_PREDICOES.md)
+
+---
+
 # 🤖 Sistema de Machine Learning para Previsão de Status Acadêmico
 
 Sistema completo de ML com Random Forest para classificação multiclasse do status do aluno (Reprovado, Recuperação, Aprovado).

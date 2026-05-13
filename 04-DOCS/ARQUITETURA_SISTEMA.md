@@ -1,3 +1,7 @@
+[← Raiz](../README.md) · [Índice](INDICE_DOCUMENTACAO.md) · [Resumo Executivo](RESUMO_EXECUTIVO.md) · [Cálculos ML](DOCUMENTACAO_CALCULOS.md) · [Estrutura do Projeto](ESTRUTURA_PROJETO.md) · [Guia Predições](GUIA_PREDICOES.md)
+
+---
+
 # 🏗️ ARQUITETURA DO SISTEMA COMPLETO
 
 **Visão geral de como tudo se conecta**
