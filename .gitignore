@@ -6,3 +6,9 @@ dist/
 EduNotas.spec
 *db
 *xlsx
+# Obsidian: ignorar config, plugins e binários — rastrear só .md
+Obsidian/**/.obsidian/
+Obsidian/**/*.js
+Obsidian/**/*.css
+Obsidian/**/*.base
+Obsidian/**/*.zip
