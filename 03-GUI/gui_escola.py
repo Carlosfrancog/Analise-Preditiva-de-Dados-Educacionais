@@ -40,6 +40,7 @@ HEADER_BG = "#E8EAF6"
 ROW_ALT   = "#F5F7FF"
 RED_L     = "#FFEBEE"
 GRN_L     = "#E8F5E9"
+WARN_L    = "#FFF8E1"
 
 FONT_TITLE  = ("Segoe UI", 18, "bold")
 FONT_HEAD   = ("Segoe UI", 12, "bold")
@@ -174,50 +175,99 @@ class DashboardPage(BasePage):
         super().__init__(parent, app, "Dashboard", "🏠")
         self.stats_frame = tk.Frame(self, bg=BG)
         self.stats_frame.pack(fill="x", padx=30, pady=10)
+        self.ml_frame = tk.Frame(self, bg=BG)
+        self.ml_frame.pack(fill="x", padx=30, pady=(0, 6))
         self.sala_frame = tk.Frame(self, bg=BG)
         self.sala_frame.pack(fill="both", expand=True, padx=30, pady=5)
 
     def refresh(self):
         for w in self.stats_frame.winfo_children():
             w.destroy()
+        for w in self.ml_frame.winfo_children():
+            w.destroy()
         for w in self.sala_frame.winfo_children():
             w.destroy()
+
         conn = cads.get_conn()
         na = conn.execute("SELECT COUNT(*) FROM alunos").fetchone()[0]
         nm = conn.execute("SELECT COUNT(*) FROM materias").fetchone()[0]
         nn = conn.execute("SELECT COUNT(*) FROM notas WHERE n1 IS NOT NULL").fetchone()[0]
+        n_risco = conn.execute(
+            "SELECT COUNT(*) FROM ml_features WHERE status_encoded IN (0, 1)"
+        ).fetchone()[0]
         conn.close()
 
         for label, val, col in [
             ("Alunos", na, ACCENT),
             ("Matérias", nm, SUCCESS),
             ("Notas Lançadas", nn, WARN),
+            ("Em Risco (ML)", n_risco, "#C62828"),
         ]:
             c = self.stat_card(self.stats_frame, label, val, col)
             c.pack(side="left", padx=8, ipadx=20)
+
+        # Barra de status dos modelos ML
+        self._build_ml_status()
 
         # Salas table
         tk.Label(self.sala_frame, text="Alunos por Turma",
                  font=FONT_HEAD, bg=BG, fg=TEXT).pack(anchor="w", pady=(10, 5))
         c = self.card(self.sala_frame)
         c.pack(fill="both", expand=True)
-        cols = ("Turma", "Código", "Qtd. Alunos")
+        cols = ("Turma", "Código", "Qtd. Alunos", "Em Risco")
         tv = ttk.Treeview(c, columns=cols, show="headings", height=7)
         for col in cols:
             tv.heading(col, text=col)
             tv.column(col, anchor="center", width=180)
         conn = cads.get_conn()
         salas = conn.execute("""
-            SELECT s.nome, s.codigo, COUNT(a.id) as cnt
-            FROM salas s LEFT JOIN alunos a ON a.sala_id=s.id
+            SELECT s.nome, s.codigo, COUNT(DISTINCT a.id) as cnt,
+                   SUM(CASE WHEN f.status_encoded IN (0,1) THEN 1 ELSE 0 END) as risco
+            FROM salas s
+            LEFT JOIN alunos a ON a.sala_id = s.id
+            LEFT JOIN ml_features f ON f.aluno_id = a.id
             GROUP BY s.id ORDER BY s.id
         """).fetchall()
         conn.close()
         for i, r in enumerate(salas):
             tag = "alt" if i % 2 else ""
-            tv.insert("", "end", values=(r[0], r[1], r[2]), tags=(tag,))
+            risco_val = r[3] if r[3] else 0
+            tv.insert("", "end", values=(r[0], r[1], r[2], risco_val), tags=(tag,))
         tv.tag_configure("alt", background=ROW_ALT)
         tv.pack(fill="both", expand=True, padx=5, pady=5)
+
+    def _build_ml_status(self):
+        """Exibe status dos modelos ML treinados."""
+        import json
+        from pathlib import Path
+
+        models_dir = Path(__file__).parent.parent / "02-ML" / "ml_models"
+        model_info = []
+        for name in ["RF_M1", "RF_M2", "RF_M3"]:
+            meta_file = models_dir / f"{name}_metadata.json"
+            if meta_file.exists():
+                try:
+                    with open(meta_file, encoding="utf-8") as f:
+                        meta = json.load(f)
+                    acc = meta.get("accuracy", 0)
+                    model_info.append((name, f"{acc:.1%}", True))
+                except Exception:
+                    model_info.append((name, "erro", False))
+            else:
+                model_info.append((name, "não treinado", False))
+
+        if not any(ok for _, _, ok in model_info):
+            return
+
+        row = tk.Frame(self.ml_frame, bg=BG)
+        row.pack(fill="x", pady=2)
+        tk.Label(row, text="Modelos IA:", font=FONT_SMALL, bg=BG, fg=MUTED).pack(side="left", padx=(0, 8))
+        for name, acc_str, ok in model_info:
+            color = SUCCESS if ok else MUTED
+            badge = tk.Frame(row, bg=CARD, highlightbackground="#D0D8F0", highlightthickness=1)
+            badge.pack(side="left", padx=4, ipadx=8, ipady=3)
+            tk.Label(badge, text=name, font=("Segoe UI", 8, "bold"), bg=CARD, fg=TEXT).pack(side="left", padx=(4, 2))
+            tk.Label(badge, text=acc_str, font=("Segoe UI", 8), bg=CARD, fg=color).pack(side="left", padx=(0, 4))
 
 
 # ── Alunos ────────────────────────────────────────────────────────────────────
@@ -460,6 +510,7 @@ class NotasPage(BasePage):
         sb.pack(side="right", fill="y")
         self.tv.pack(fill="both", expand=True)
         self.tv.tag_configure("aprov", background=GRN_L)
+        self.tv.tag_configure("recup",  background=WARN_L)
         self.tv.tag_configure("reprov", background=RED_L)
         self.tv.tag_configure("alt", background=ROW_ALT)
         self.tv.bind("<Double-1>", self._edit_nota)
@@ -504,9 +555,15 @@ class NotasPage(BasePage):
             vals = [n.get('n1'), n.get('n2'), n.get('n3'), n.get('n4')]
             valid = [v for v in vals if v is not None]
             media = round(sum(valid) / len(valid), 1) if valid else "-"
-            status = "Aprovado" if isinstance(media, float) and media >= 6 else \
-                     "Recuperação" if isinstance(media, float) else "-"
-            tag = "aprov" if status == "Aprovado" else "reprov" if status == "Recuperação" else "alt"
+            if isinstance(media, float):
+                if media >= 6:
+                    status, tag = "Aprovado", "aprov"
+                elif media >= 5:
+                    status, tag = "Recuperação", "recup"
+                else:
+                    status, tag = "Reprovado", "reprov"
+            else:
+                status, tag = "-", "alt" if i % 2 else ""
             self.tv.insert("", "end", iid=str(n['id']),
                            values=(n['materia_nome'],
                                    n['n1'] or "-", n['n2'] or "-",
@@ -602,6 +659,7 @@ class RelatorioPage(BasePage):
         sb.pack(side="right", fill="y")
         self.tv.pack(fill="both", expand=True)
         self.tv.tag_configure("aprov", background=GRN_L)
+        self.tv.tag_configure("recup",  background=WARN_L)
         self.tv.tag_configure("reprov", background=RED_L)
         self.tv.tag_configure("alt", background=ROW_ALT)
 
@@ -623,9 +681,15 @@ class RelatorioPage(BasePage):
             vals = [d.get('n1'), d.get('n2'), d.get('n3'), d.get('n4')]
             valid = [v for v in vals if v is not None]
             media = round(sum(valid) / len(valid), 1) if valid else "-"
-            status = "Aprovado" if isinstance(media, float) and media >= 6 else \
-                     "Recuperação" if isinstance(media, float) else "-"
-            tag = "aprov" if status == "Aprovado" else "reprov" if status == "Recuperação" else "alt"
+            if isinstance(media, float):
+                if media >= 6:
+                    status, tag = "Aprovado", "aprov"
+                elif media >= 5:
+                    status, tag = "Recuperação", "recup"
+                else:
+                    status, tag = "Reprovado", "reprov"
+            else:
+                status, tag = "-", "alt" if i % 2 else ""
             self.tv.insert("", "end", values=(
                 d['aluno'], d['sala'], d['materia'],
                 d.get('n1') or "-", d.get('n2') or "-",

@@ -19,6 +19,7 @@ created: 2026-05-13
 
 - [[Visão Geral]] — O que é o sistema, objetivos e status atual
 - [[Roadmap]] — Próximos passos e metas futuras
+- [[Melhorias 2026-05-14]] — Bugfixes e melhorias de UI (status de notas, dashboard ML, predições)
 
 ---
 

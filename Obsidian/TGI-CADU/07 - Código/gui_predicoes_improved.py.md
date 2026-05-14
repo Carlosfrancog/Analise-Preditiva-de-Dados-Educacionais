@@ -28,12 +28,16 @@ from gui_predicoes import BasePage   # classe base
 
 ---
 
+> [!NOTE] Atualizado em 2026-05-14
+> Acentuação corrigida, lógica de cor do perfil corrigida, tratamento de erro para modelos não treinados adicionado.
+> Ver [[Melhorias 2026-05-14#3-predições-acentuação-e-lógica-de-perfil|detalhes das correções]].
+
 ## `class PredictionPageImproved(BasePage)` {#PredictionPageImproved}
 
 ```python
 class PredictionPageImproved(BasePage):
     def __init__(self, parent, app):
-        super().__init__(parent, app, "Predicoes de Desempenho", "[Pred]")
+        super().__init__(parent, app, "Predições de Desempenho", "🎯")  # ← corrigido
         self.ml_loader = MLModelLoader()    # → [[gui_ml_integration.py#MLModelLoader]]
         self.aluno_var = tk.StringVar()
         self.aluno_data = {}    # nome → aluno_id
@@ -47,6 +51,34 @@ class PredictionPageImproved(BasePage):
 
 **Instancia no `__init__`:**
 - [[gui_ml_integration.py#MLModelLoader|MLModelLoader()]] — carrega modelos RF_M* ao abrir a página
+
+### Lógica de cor do perfil
+
+O perfil retornado por [[gui_ml_integration.py#analyze_student|analyze_student()]] usa estas strings:
+
+| Valor | Cor exibida |
+|---|---|
+| `"🔴 CRÍTICO - Atenção imediata"` | `DANGER` (vermelho) |
+| `"🟡 EM RISCO - Acompanhamento"` | `WARN` (laranja) |
+| `"🟢 SEGURO - Desempenho normal"` | `SUCCESS` (verde) |
+
+```python
+# Verificação correta (2026-05-14)
+if "CRÍTICO" in profile:   profile_color = DANGER
+elif "EM RISCO" in profile: profile_color = WARN
+else:                        profile_color = SUCCESS
+```
+
+### Ícones de prognóstico
+
+| Chave | Label exibido |
+|---|---|
+| `will_improve` | `↗ Vai Melhorar` |
+| `will_decline` | `↘ Vai Piorar` |
+| `stable` | `→ Estável` |
+| `better_than_expected` | `↑ Superou Previsão` |
+| `worse_than_expected` | `↓ Abaixo do Previsto` |
+| `as_expected` | `= Como Previsto` |
 
 ---
 

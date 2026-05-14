@@ -36,11 +36,26 @@ ACCENT    = "#3949AB"   # cor principal
 SUCCESS   = "#2E7D32"   # verde
 WARN      = "#E65100"   # laranja
 
+# Cores de fundo para linhas de tabela (status de notas)
+GRN_L  = "#E8F5E9"   # aprovado
+WARN_L = "#FFF8E1"   # recuperação  ← adicionado 2026-05-14
+RED_L  = "#FFEBEE"   # reprovado
+
 # Fontes
 FONT_TITLE = ("Segoe UI", 18, "bold")
 FONT_HEAD  = ("Segoe UI", 12, "bold")
 FONT_BODY  = ("Segoe UI", 10)
 ```
+
+> [!NOTE] Tags de Treeview para status de notas
+> Toda Treeview que exibe status de notas deve ter as três tags configuradas:
+> ```python
+> tv.tag_configure("aprov",  background=GRN_L)   # verde
+> tv.tag_configure("recup",  background=WARN_L)  # amarelo
+> tv.tag_configure("reprov", background=RED_L)   # vermelho
+> tv.tag_configure("alt",    background=ROW_ALT) # cinza claro (fallback)
+> ```
+> Ver [[Melhorias 2026-05-14#1-bug-crítico-lógica-de-status-de-notas|bug corrigido em 14/05/2026]].
 
 ---
 
@@ -136,9 +151,10 @@ Card de estatística com número grande + label pequeno. Usado no [[gui_escola.p
 ```python
 class DashboardPage(BasePage):
     def refresh(self) -> None:
+    def _build_ml_status(self) -> None:   # ← adicionado 2026-05-14
 ```
 
-**O que faz:** Exibe contadores (alunos, matérias, notas lançadas) e tabela de alunos por turma.
+**O que faz:** Exibe 4 cards de estatística, barra de status dos modelos IA e tabela de alunos por turma com coluna "Em Risco".
 
 **Chama:**
 - [[cads.py#get_conn|cads.get_conn()]] — consultas `COUNT(*)` diretas
@@ -149,11 +165,24 @@ class DashboardPage(BasePage):
 SELECT COUNT(*) FROM alunos
 SELECT COUNT(*) FROM materias
 SELECT COUNT(*) FROM notas WHERE n1 IS NOT NULL
+SELECT COUNT(*) FROM ml_features WHERE status_encoded IN (0, 1)  -- ← novo: "Em Risco"
 
-SELECT s.nome, s.codigo, COUNT(a.id) as cnt
-FROM salas s LEFT JOIN alunos a ON a.sala_id=s.id
+-- Tabela de turmas (nova versão com coluna Em Risco)
+SELECT s.nome, s.codigo, COUNT(DISTINCT a.id) as cnt,
+       SUM(CASE WHEN f.status_encoded IN (0,1) THEN 1 ELSE 0 END) as risco
+FROM salas s
+LEFT JOIN alunos a ON a.sala_id = s.id
+LEFT JOIN ml_features f ON f.aluno_id = a.id
 GROUP BY s.id ORDER BY s.id
 ```
+
+### `_build_ml_status()` {#_build_ml_status}
+
+Lê arquivos `RF_M*_metadata.json` de `02-ML/ml_models/` e exibe badges com nome e acurácia de cada modelo. Oculta-se automaticamente se nenhum modelo foi treinado ainda.
+
+> [!TIP] Dependência
+> O card "Em Risco (ML)" mostra `0` quando `ml_features` está vazia. Incentiva rodar [[cads.py#gerar_features_ml|gerar_features_ml()]].
+> Ver [[Melhorias 2026-05-14#2-dashboard-stats-de-ia-e-alunos-em-risco|detalhes da melhoria]].
 
 ---
 

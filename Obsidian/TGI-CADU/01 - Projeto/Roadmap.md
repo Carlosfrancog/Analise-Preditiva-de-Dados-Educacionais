@@ -12,9 +12,20 @@ created: 2026-05-13
 
 ---
 
+## Concluído — 14/05/2026
+
+> Ver [[Melhorias 2026-05-14]] para detalhes completos de cada item.
+
+- [x] Corrigir lógica de status (Reprovado/Recuperação/Aprovado) em `NotasPage` e `RelatorioPage`
+- [x] Dashboard com card "Em Risco (ML)" e barra de status dos modelos IA
+- [x] Acentuação e lógica de cor do perfil em `gui_predicoes_improved.py`
+- [x] Tratamento de erro quando modelos ML não estão treinados
+
+---
+
 ## Curto Prazo (Esta Semana)
 
-- [ ] Integrar modelos treinados com a GUI de predições
+- [ ] Integrar modelos treinados com a GUI de predições (RF_M3 já integrado, testar com dados reais)
 - [ ] Testar com dados reais de alunos
 - [ ] Validar acurácia dos modelos no ambiente de produção
 - [ ] Documentar processo de retreino para a equipe

@@ -52,7 +52,7 @@ class PredictionPageImproved(BasePage):
     """
     
     def __init__(self, parent, app):
-        super().__init__(parent, app, "Predicoes de Desempenho", "[Pred]")
+        super().__init__(parent, app, "Predições de Desempenho", "🎯")
         self.ml_loader = MLModelLoader()
         self.aluno_var = tk.StringVar()
         self.aluno_data = {}
@@ -73,7 +73,7 @@ class PredictionPageImproved(BasePage):
         desc.pack(fill="x", padx=30, pady=(0, 10))
         tk.Label(
             desc,
-            text="Identifique deficits logo no comeco do ano - analise por disciplina com previsoes",
+            text="Identifique déficits logo no início do ano — análise por disciplina com previsões do modelo IA",
             font=FONT_SMALL,
             bg=BG,
             fg=MUTED
@@ -134,7 +134,7 @@ class PredictionPageImproved(BasePage):
         filtros = [
             ("Todas", "all"),
             ("Aprovadas", "aprovado"),
-            ("Recuperacao", "recuperacao"),
+            ("Recuperação", "recuperacao"),
             ("Reprovadas", "reprovado"),
             ("Vai Melhorar", "melhorar"),
             ("Vai Piorar", "piorar"),
@@ -174,26 +174,43 @@ class PredictionPageImproved(BasePage):
         self.aluno_data = {f"{a['nome']} ({a['matricula']})": a['id'] for a in alunos}
     
     def _load_student_analysis(self):
-        """Carrega analise do aluno selecionado."""
+        """Carrega análise do aluno selecionado."""
         if not self.aluno_var.get():
-            messagebox.showwarning("Atencao", "Selecione um aluno.")
+            messagebox.showwarning("Atenção", "Selecione um aluno.")
             return
-        
+
         aluno_id = self.aluno_data.get(self.aluno_var.get())
         if not aluno_id:
             return
-        
-        # Analisar
-        analise = DisciplinePerformanceAnalyzer.analyze_student(
-            "escola.db",
-            aluno_id,
-            self.ml_loader
-        )
-        
-        if not analise:
-            messagebox.showerror("Erro", "Aluno nao encontrado.")
+
+        # Aviso amigável se nenhum modelo foi treinado
+        if not self.ml_loader.is_available("RF_M3") and \
+           not self.ml_loader.is_available("RF_M2") and \
+           not self.ml_loader.is_available("RF_M1"):
+            resp = messagebox.askyesno(
+                "Modelos não treinados",
+                "Nenhum modelo de IA foi treinado ainda.\n\n"
+                "A análise será feita apenas com as notas atuais, sem previsões.\n\n"
+                "Deseja continuar mesmo assim?\n"
+                "(Para treinar, acesse 🤖 Machine Learning)"
+            )
+            if not resp:
+                return
+
+        try:
+            analise = DisciplinePerformanceAnalyzer.analyze_student(
+                None,
+                aluno_id,
+                self.ml_loader
+            )
+        except Exception as e:
+            messagebox.showerror("Erro na análise", f"Não foi possível analisar o aluno:\n{e}")
             return
-        
+
+        if not analise:
+            messagebox.showerror("Erro", "Aluno não encontrado ou sem notas lançadas.")
+            return
+
         self.analise_atual = analise
         self._display_analysis(analise)
     
@@ -218,7 +235,7 @@ class PredictionPageImproved(BasePage):
         header = tk.Frame(aluno_card, bg=HEADER_BG)
         header.pack(fill="x")
         
-        info_text = f"{analise['aluno']['nome']} [Matricula: {analise['aluno']['matricula']}] {analise['aluno']['sala']}"
+        info_text = f"{analise['aluno']['nome']}  ·  Matrícula: {analise['aluno']['matricula']}  ·  {analise['aluno']['sala']}"
         tk.Label(
             header,
             text=info_text,
@@ -227,11 +244,11 @@ class PredictionPageImproved(BasePage):
             fg=TEXT,
             anchor="w"
         ).pack(anchor="w", padx=15, pady=(10, 8))
-        
-        # Perfil e recomendacoes
+
+        # Perfil e recomendações
         body = tk.Frame(aluno_card, bg=CARD)
         body.pack(fill="x", padx=15, pady=(8, 15))
-        
+
         tk.Label(
             body,
             text="Perfil:",
@@ -239,19 +256,19 @@ class PredictionPageImproved(BasePage):
             bg=CARD,
             fg=MUTED
         ).pack(anchor="w", pady=(0, 4))
-        
-        # Determinar cor do perfil
-        profile_color = TEXT
-        if "Emrisco" in analise['profile']:
+
+        # Cor baseada nos valores reais retornados pelo analisador
+        profile = analise['profile']
+        if "CRÍTICO" in profile:
             profile_color = DANGER
-        elif "Equilibrado" in analise['profile']:
-            profile_color = TEXT
-        elif "Excelente" in analise['profile']:
+        elif "EM RISCO" in profile:
+            profile_color = WARN
+        else:
             profile_color = SUCCESS
-        
+
         tk.Label(
             body,
-            text=analise['profile'],
+            text=profile,
             font=("Segoe UI", 13, "bold"),
             bg=CARD,
             fg=profile_color
@@ -263,7 +280,7 @@ class PredictionPageImproved(BasePage):
         # Titulo das disciplinas
         disc_label = tk.Label(
             self.result_frame,
-            text="Analise por Disciplina (layout horizontal)",
+            text="Análise por Disciplina",
             font=FONT_HEAD,
             bg=BG,
             fg=TEXT
@@ -347,41 +364,41 @@ class PredictionPageImproved(BasePage):
         # Ordenar por prioridade: reprovados primeiro, depois recuperacao, depois problemas
         prioridade = []
         
-        # Alunos reprovados
+        # Disciplinas reprovadas
         for disc in analise['disciplinas']:
-            if disc['status'] == 0:  # Reprovado
-                prioridade.append((disc['nome'], "SUSPENSAO", disc, 3))
-        
-        # Alunos vai piorar
+            if disc['status'] == 0:
+                prioridade.append((disc['nome'], "SUSPENSÃO", disc, 3))
+
+        # Disciplinas em queda
         for disc in analise['disciplinas']:
             if disc.get('prognosis') == 'will_decline':
-                prioridade.append((disc['nome'], "PREVENCAO", disc, 2))
-        
+                prioridade.append((disc['nome'], "PREVENÇÃO", disc, 2))
+
         # Vai melhorar (informativo)
         melhora = [d['nome'] for d in analise['disciplinas'] if d.get('prognosis') == 'will_improve']
-        
+
         if prioridade:
             tk.Label(
                 body,
-                text="RECOMENDACOES (Prioridade de Foco):",
+                text="RECOMENDAÇÕES (Prioridade de Foco):",
                 font=("Segoe UI", 10, "bold"),
                 bg=CARD,
                 fg=DANGER
             ).pack(anchor="w", pady=(8, 6))
-            
+
             for nome, tipo, disc, _ in sorted(prioridade, key=lambda x: x[3], reverse=True):
                 tk.Label(
                     body,
-                    text=f"  {nome}: Reforco imediato ({tipo})",
+                    text=f"  • {nome}: reforço imediato [{tipo}]",
                     font=FONT_SMALL,
                     bg=CARD,
                     fg=DANGER
                 ).pack(anchor="w")
-        
+
         if melhora:
             tk.Label(
                 body,
-                text=f"Manutencao: {', '.join(melhora)}",
+                text=f"Manutenção positiva: {', '.join(melhora)}",
                 font=FONT_SMALL,
                 bg=CARD,
                 fg=SUCCESS
@@ -407,8 +424,8 @@ class DisciplineCardImproved(tk.Frame):
         ).pack(anchor="w", padx=10, pady=6, side="left", expand=True)
         
         # Status badge
-        status_colors = {0: "#C62828", 1: "#FF9800", 2: "#2E7D32"}
-        status_names = {0: "Reprovado", 1: "Recuperacao", 2: "Aprovado"}
+        status_colors = {0: "#C62828", 1: "#E65100", 2: "#2E7D32"}
+        status_names = {0: "Reprovado", 1: "Recuperação", 2: "Aprovado"}
         
         status_color = status_colors.get(disc_info["status"], "#666")
         status_name = status_names.get(disc_info["status"], "Desconhecido")
@@ -459,13 +476,13 @@ class DisciplineCardImproved(tk.Frame):
             
             tk.Label(
                 prev_frame,
-                text="Previsao N4:",
+                text="Previsão N4:",
                 font=("Segoe UI", 8),
                 bg="#E3F2FD",
                 fg="#1565C0"
             ).pack(anchor="w")
-            
-            # Calcula previsao simples baseada em N1, N2, N3
+
+            # Calcula previsão baseada em slope (tendência)
             media_prevista = self._prever_n4(disc_info)
             
             tk.Label(
@@ -499,12 +516,12 @@ class DisciplineCardImproved(tk.Frame):
         # Prognosis
         if disc_info.get("prognosis"):
             prognosis_colors = {
-                "will_improve": ("#C8E6C9", "#2E7D32", "[*] Vai Melhorar"),
-                "will_decline": ("#FFCCBC", "#C62828", "[!] Vai Piorar"),
-                "stable": ("#FFF9C4", "#F57F17", "[-] Estavel"),
-                "better_than_expected": ("#C8E6C9", "#2E7D32", "[+] Superou Previsao"),
-                "worse_than_expected": ("#FFCCBC", "#C62828", "[-] Abaixo Previsao"),
-                "as_expected": ("#FFF9C4", "#F57F17", "[-] Como Previsto"),
+                "will_improve":         ("#C8E6C9", "#2E7D32", "↗ Vai Melhorar"),
+                "will_decline":         ("#FFCCBC", "#C62828", "↘ Vai Piorar"),
+                "stable":               ("#FFF9C4", "#F57F17", "→ Estável"),
+                "better_than_expected": ("#C8E6C9", "#2E7D32", "↑ Superou Previsão"),
+                "worse_than_expected":  ("#FFCCBC", "#C62828", "↓ Abaixo do Previsto"),
+                "as_expected":          ("#FFF9C4", "#F57F17", "= Como Previsto"),
             }
             
             bg_color, fg_color, text = prognosis_colors.get(
