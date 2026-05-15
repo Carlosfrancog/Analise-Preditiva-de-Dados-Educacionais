@@ -23,6 +23,21 @@ created: 2026-05-13
 
 ---
 
+## Artigo Científico — Extensão do EduPredict
+
+> Ver [[Plano de Artigo ABNT]] para o plano completo com estrutura ABNT, referências e cronograma.
+
+- [ ] Implementar módulo de alertas com escalonamento (informativo / atenção / crítico)
+- [ ] Implementar tabela `alertas` e `feedback_docente` no banco de dados
+- [ ] Implementar motor de retreino incremental por feedback docente
+- [ ] Prototipar portal familiar (web) com granularidade de informação por nível de risco
+- [ ] Implementar checklist LGPD e formulário de consentimento parental
+- [ ] Adicionar SHAP local (explicabilidade por aluno/predição)
+- [ ] Incorporar frequência/assiduidade como feature adicional (Lacuna 5 do artigo-base)
+- [ ] Redigir artigo em ABNT (estrutura definida no plano)
+
+---
+
 ## Curto Prazo (Esta Semana)
 
 - [ ] Integrar modelos treinados com a GUI de predições (RF_M3 já integrado, testar com dados reais)

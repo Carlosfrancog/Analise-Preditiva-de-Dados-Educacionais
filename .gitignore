@@ -2,7 +2,7 @@ __pycache__/
 build/
 dist/
 *.json
-
+*.csv
 EduNotas.spec
 *db
 *xlsx
