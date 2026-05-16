@@ -24,6 +24,19 @@ created: 2026-05-13
 
 ---
 
+## Artigo Científico (Knowledge Base)
+
+- [[INDEX - ARTIGO]] — Mapa completo com 45+ notas organizadas em 20 seções
+- [[Análise Crítica do TGI]] — O que o artigo acerta, onde falha, o que omite
+- [[Débitos Técnicos Identificados]] — 7 débitos priorizados com correções propostas
+- [[Limitações Gerais do Artigo]] — 13 limitações catalogadas por severidade
+- **Features:** [[Visão Geral das 9 Features]] · [[slope notas — Tendência Temporal]] · [[pct materias ok — Aprovação Global]]
+- **Modelos:** [[M1 — Modelo Precoce]] · [[M2 — Modelo Intermediário]] · [[M3 — Modelo de Produção (Após N3)]] · [[Comparação M1 M2 M3]]
+- **Data Leakage:** [[Data Leakage — Conceito e Impacto]] · [[Detecção Automática por Correlação de Pearson]]
+- **Melhorias:** [[SHAP — Explicabilidade Local por Aluno]] · [[Incorporação de Frequência e Engajamento]] · [[Protocolo de Alertas EWS]]
+
+---
+
 ## Arquitetura
 
 - [[Arquitetura do Sistema]] — Como os módulos se conectam e o fluxo de dados
