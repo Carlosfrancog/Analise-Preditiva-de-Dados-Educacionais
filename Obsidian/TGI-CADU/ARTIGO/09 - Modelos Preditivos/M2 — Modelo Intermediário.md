@@ -1,5 +1,6 @@
 ---
 tags: [artigo, modelos, M2, random-forest, intermediario]
+aliases: [M2 — Predição Intermediária (Após N2), M2 — Modelo Intermediário]
 created: 2026-05-16
 ---
 

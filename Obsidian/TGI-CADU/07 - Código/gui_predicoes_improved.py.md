@@ -9,7 +9,7 @@ created: 2026-05-13
 
 # `gui_predicoes_improved.py` — Documentação de Código
 
-[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]]
+[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]] | [→ Análise ARTIGO](<../ARTIGO/12 - Implementação Python/gui predicoes improved py — Interface Preditiva.md>)
 
 > [!NOTE] Localização
 > `03-GUI/gui_predicoes_improved.py` | Importado por: [[gui_escola.py#_build_ui|gui_escola.py]] como `PredictionPage`

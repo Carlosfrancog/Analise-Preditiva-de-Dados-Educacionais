@@ -1,5 +1,6 @@
 ---
 tags: [artigo, modelos, M1, random-forest, early-warning]
+aliases: [M1 — Alerta Precoce (Após N1), M1 — Modelo Precoce]
 created: 2026-05-16
 ---
 

@@ -1,5 +1,6 @@
 ---
 tags: [artigo, random-forest, algoritmo, ml, ensemble]
+aliases: [Algoritmo Random Forest — Base Teórica]
 created: 2026-05-16
 ---
 

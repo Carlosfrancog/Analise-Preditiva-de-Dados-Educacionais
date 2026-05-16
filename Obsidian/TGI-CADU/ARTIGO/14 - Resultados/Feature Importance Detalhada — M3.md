@@ -1,5 +1,6 @@
 ---
 tags: [artigo, resultados, feature-importance, M3, interpretabilidade]
+aliases: [Feature Importance — Interpretação]
 created: 2026-05-16
 ---
 

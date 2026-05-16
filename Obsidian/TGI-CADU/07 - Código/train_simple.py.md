@@ -9,7 +9,7 @@ created: 2026-05-13
 
 # `train_simple.py` — Documentação de Código
 
-[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]]
+[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]] | [→ Análise ARTIGO](<../ARTIGO/12 - Implementação Python/train simple py — Pipeline Autônomo.md>)
 
 > [!NOTE] Localização
 > `02-ML/train_simple.py` | Script autônomo — `python train_simple.py`

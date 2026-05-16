@@ -1,5 +1,6 @@
 ---
 tags: [artigo, arquitetura, modulos, sistema, design]
+aliases: [Arquitetura Modular do EduPredict, Módulo de Dados — cads.py, Módulo de Interface — GUI tkinter, Módulo de ML — train simple e gui ml integration]
 created: 2026-05-16
 ---
 

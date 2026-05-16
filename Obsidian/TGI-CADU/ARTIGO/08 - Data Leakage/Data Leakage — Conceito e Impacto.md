@@ -1,5 +1,6 @@
 ---
 tags: [artigo, data-leakage, ml, metodologia, critico]
+aliases: [Data Leakage]
 created: 2026-05-14
 ---
 

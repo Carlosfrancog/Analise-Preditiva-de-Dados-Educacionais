@@ -11,37 +11,59 @@ created: 2026-05-16
 
 ---
 
-## 1. DT-01 — Inconsistência de slope entre cads.py e gui_ml_integration.py
+## 1. DT-01 — Features Incorretas Enviadas ao Modelo na Predição em Tempo Real
 
-**Arquivo:** `02-ML/gui_ml_integration.py` vs `01-CORE/cads.py`
+**Arquivo:** `02-ML/gui_ml_integration.py`, linhas 283-295
 
-**Problema:**
+**Problema crítico — 4 sub-problemas:**
+
 ```python
-# cads.py — usa regressão linear sobre todas as notas disponíveis
-slope_notas = _slope([n/10 for n in notas_disponíveis])
+# O que o código faz na predição GUI (linhas 283-295):
+slope     = (n2 - n1)                    # ← diferença simples entre norm. [0-1]
+variancia = abs(n1 - n2)                 # ← absoluto, NÃO desvio padrão
+media_norm = (n1_raw + n2_raw) / 2 / 10 # ← só 2 notas, não media_geral_aluno
 
-# gui_ml_integration.py — usa variação percentual N2→N1
-slope_pct = ((n2_raw - n1_raw) / n1_raw) * 100
+features_pred = [n1, n2, 0, 0, slope, variancia, media_norm, 0.5, 0.5]
+#                        ^^^^  ← N3 e N4 zerados MESMO quando disponíveis
+#                                                              ^^^  ^^^
+#                                               serie_num_norm=0.5  ← hardcoded!
+#                                               pct_materias_ok=0.5 ← hardcoded!
 ```
 
-São medidas fundamentalmente diferentes. O modelo ML usa a versão de `cads.py` para treinamento, mas a interface usa a versão percentual para exibir prognósticos. Um aluno pode receber o prognóstico "vai melhorar" na interface mas ter slope negativo nos dados usados para treinamento.
+**O que o modelo foi treinado a esperar (train_simple.py):**
+```python
+# 9 features reais calculadas por cads.gerar_features_ml():
+[n1_norm, n2_norm, n3_norm,         # notas reais
+ slope_notas,                        # cads._slope() = regressão linear
+ variancia_notas,                    # cads._std() = desvio padrão normalizado
+ media_geral_aluno,                  # média cross-matéria do aluno
+ serie_num_norm,                     # série real (6F=0 a 3M=1)
+ pct_materias_ok,                    # % matérias não-reprovadas
+ media_turma_norm]                   # média da turma
+```
+
+**Impacto:** O RF_M3 recebe features completamente diferentes do que aprendeu. A predição exibida na interface pode estar sistematicamente errada para alunos de séries extremas (6F ou 3M) ou com muitas/poucas matérias em risco.
+
+**Também existe `slope_pct`** (linha 371) usado separadamente para prognóstico (will_improve/will_decline):
+```python
+slope_pct = ((n2_raw - n1_raw) / n1_raw) * 100  # variação percentual N1→N2
+```
 
 **Correção proposta:**
 ```python
-# gui_ml_integration.py — substituir slope_pct por _slope
-from cads import _slope
-notas_disponiveis = [n for n in [n1_raw, n2_raw, n3_raw, n4_raw] if n > 0]
-slope_real = _slope([n/10 for n in notas_disponiveis])
+# gui_ml_integration.py — usar features corretas do banco
+features_row = conn.execute(
+    "SELECT * FROM ml_features WHERE aluno_id=? AND materia_id=?",
+    (aluno_id, materia_id)
+).fetchone()
 
-if slope_real > 0.15:
-    disc_info["prognosis"] = "will_improve"
-elif slope_real < -0.15:
-    disc_info["prognosis"] = "will_decline"
-else:
-    disc_info["prognosis"] = "stable"
+if features_row:
+    feature_names = model_loader.metadata.get("RF_M3", {}).get("features", [])
+    features_pred = [features_row[f] or 0 for f in feature_names]
+    pred, proba = model_loader.predict("RF_M3", features_pred)
 ```
 
-**Severidade:** Alta — afeta a consistência entre o que o modelo vê e o que o usuário vê.
+**Severidade:** Alta — o modelo prediz com features que não correspondem ao treinamento.
 
 ---
 

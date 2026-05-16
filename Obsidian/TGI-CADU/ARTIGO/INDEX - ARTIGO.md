@@ -9,7 +9,7 @@ created: 2026-05-14
 
 # ARTIGO — Mapa do Conhecimento EduPredict
 
-[[MOC - TGI-CODES|← Vault Principal]] | [[Plano de Artigo ABNT]] | [[Roadmap]]
+[← Vault Principal](<../MOC - TGI-CODES.md>) | [[Plano de Artigo ABNT]] | [[Roadmap]]
 
 > [!NOTE] Fonte primária
 > **GABRIEL, C. E. F.; ROCHA, M. F. P. S.** *EduPredict: Um Sistema Baseado em Machine Learning para Predição de Desempenho e Evasão Escolar.* UNICSUL, 2026. 12 p.

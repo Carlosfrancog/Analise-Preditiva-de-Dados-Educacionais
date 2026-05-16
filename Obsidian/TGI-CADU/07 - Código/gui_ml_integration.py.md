@@ -8,7 +8,7 @@ created: 2026-05-13
 
 # `gui_ml_integration.py` — Documentação de Código
 
-[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]]
+[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]] | [→ Análise ARTIGO](<../ARTIGO/12 - Implementação Python/gui ml integration py — Motor de Predição.md>)
 
 > [!NOTE] Localização
 > `02-ML/gui_ml_integration.py` | Importado por: [[gui_predicoes_improved.py]]

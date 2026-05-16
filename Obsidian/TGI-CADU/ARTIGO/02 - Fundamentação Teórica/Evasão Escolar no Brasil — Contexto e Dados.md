@@ -1,5 +1,6 @@
 ---
 tags: [artigo, evasao, brasil, educacao, contexto]
+aliases: [Evasão Escolar no Brasil]
 created: 2026-05-16
 ---
 

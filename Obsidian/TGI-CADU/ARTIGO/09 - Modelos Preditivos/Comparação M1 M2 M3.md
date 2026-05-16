@@ -1,5 +1,6 @@
 ---
 tags: [artigo, modelos, comparação, trade-off, temporal]
+aliases: [Comparação Temporal dos Três Modelos]
 created: 2026-05-16
 ---
 

@@ -1,5 +1,6 @@
 ---
 tags: [artigo, insights, trade-offs, decisoes, design]
+aliases: [Decisões Arquiteturais e Trade-offs]
 created: 2026-05-16
 ---
 

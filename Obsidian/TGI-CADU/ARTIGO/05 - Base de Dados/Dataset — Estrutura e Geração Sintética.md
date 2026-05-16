@@ -1,5 +1,6 @@
 ---
 tags: [artigo, dataset, sintetico, dados, metodologia]
+aliases: [Dataset — Estrutura e Origem, Dataset Sintético — Risco de Não-generalização]
 created: 2026-05-16
 ---
 

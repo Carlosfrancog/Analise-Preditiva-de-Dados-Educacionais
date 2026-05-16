@@ -9,7 +9,7 @@ created: 2026-05-13
 
 # `cads.py` — Documentação de Código
 
-[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]]
+[[INDEX - Código|← Índice de Código]] | [[MOC - TGI-CODES|← MOC]] | [→ Análise ARTIGO](<../ARTIGO/12 - Implementação Python/cads.py — Análise Profunda.md>)
 
 > [!NOTE] Localização
 > `01-CORE/cads.py` | Importado por: [[gui_escola.py]], [[gui_ml_advanced.py]], [[gui_ml_integration.py]], [[train_simple.py]]
