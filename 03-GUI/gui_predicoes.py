@@ -10,18 +10,20 @@ import sqlite3
 from gui_ml_integration import MLModelLoader, DisciplinePerformanceAnalyzer, DisciplineCard, StatusBadge
 import numpy as np
 
-# Constantes de cores (mesmas da GUI principal)
-BG        = "#F0F4FF"
-ACCENT    = "#3949AB"
-ACCENT2   = "#5C6BC0"
-SUCCESS   = "#2E7D32"
-WARN      = "#E65100"
-DANGER    = "#C62828"
+# Design tokens — Academy B (matches gui_escola.py)
+BG        = "#F4F6FA"
+ACCENT    = "#4F46E5"
+ACCENT2   = "#818CF8"
+SUCCESS   = "#10B981"
+WARN      = "#F59E0B"
+DANGER    = "#EF4444"
 CARD      = "#FFFFFF"
-TEXT      = "#1A1A2E"
-MUTED     = "#8892B0"
-HEADER_BG = "#E8EAF6"
-ROW_ALT   = "#F5F7FF"
+TEXT      = "#0F172A"
+MUTED     = "#64748B"
+MUTED2    = "#94A3B8"
+HEADER_BG = "#F8FAFC"
+ROW_ALT   = "#F8FAFC"
+BORDER    = "#E5E9F0"
 
 FONT_TITLE  = ("Segoe UI", 18, "bold")
 FONT_HEAD   = ("Segoe UI", 12, "bold")
@@ -50,7 +52,7 @@ class BasePage(tk.Frame):
         kwargs.pop('relief', None)
         kwargs.pop('bd', None)
         f = tk.Frame(parent, bg=CARD, relief="flat", bd=0, **kwargs)
-        f.configure(highlightbackground="#D0D8F0", highlightthickness=1)
+        f.configure(highlightbackground=BORDER, highlightthickness=1)
         return f
 
     def btn(self, parent, text, cmd, color=ACCENT, fg="white", **kwargs):
@@ -166,17 +168,18 @@ class PredictionPage(BasePage):
     
     def _load_student_analysis(self):
         """Carrega análise do aluno selecionado."""
+        import cads
         if not self.aluno_var.get():
             messagebox.showwarning("Atenção", "Selecione um aluno.")
             return
-        
+
         aluno_id = self.aluno_data.get(self.aluno_var.get())
         if not aluno_id:
             return
-        
+
         # Analisar
         analise = DisciplinePerformanceAnalyzer.analyze_student(
-            "escola.db",
+            cads.DB_PATH,
             aluno_id,
             self.ml_loader
         )
@@ -330,7 +333,7 @@ class SalasPage(BasePage):
         btn_criar = self.btn(ctrl, "➕ Criar Sala", self._criar_sala, color=SUCCESS)
         btn_criar.pack(side="left", padx=5)
         
-        btn_remover = self.btn(ctrl, "🗑 Remover", self._remover_sala, color="#C62828")
+        btn_remover = self.btn(ctrl, "🗑 Remover", self._remover_sala, color=DANGER)
         btn_remover.pack(side="left", padx=5)
         
         # Tabela de salas
@@ -361,7 +364,7 @@ class SalasPage(BasePage):
         self.tv.delete(*self.tv.get_children())
         salas = cads.get_salas()
         
-        conn = sqlite3.connect("escola.db")
+        conn = cads.get_conn()
         
         for i, sala in enumerate(salas):
             cnt = conn.execute(

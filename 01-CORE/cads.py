@@ -177,8 +177,95 @@ def _migrate_db():
             except Exception:
                 pass  # já existe ou erro irrelevante
 
+    # Tabela de usuários do sistema
+    c.executescript("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome       TEXT NOT NULL,
+            email      TEXT UNIQUE NOT NULL,
+            senha_hash TEXT NOT NULL,
+            role       TEXT NOT NULL DEFAULT 'professor',
+            ativo      INTEGER DEFAULT 1,
+            criado_em  TEXT DEFAULT (datetime('now'))
+        );
+    """)
+
+    # Atividades por bimestre (sub-notas que compõem N1..N4)
+    c.executescript("""
+        CREATE TABLE IF NOT EXISTS atividades (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            aluno_id   INTEGER NOT NULL REFERENCES alunos(id)   ON DELETE CASCADE,
+            materia_id INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+            bimestre   INTEGER NOT NULL CHECK(bimestre IN (1,2,3,4)),
+            nome       TEXT NOT NULL,
+            nota       REAL NOT NULL DEFAULT 0 CHECK(nota >= 0 AND nota <= 10),
+            criado_em  TEXT DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS presencas (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            aluno_id   INTEGER NOT NULL REFERENCES alunos(id)   ON DELETE CASCADE,
+            materia_id INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+            data       TEXT NOT NULL,
+            status     TEXT NOT NULL DEFAULT 'P' CHECK(status IN ('P','F','J')),
+            criado_em  TEXT DEFAULT (datetime('now')),
+            UNIQUE(aluno_id, materia_id, data)
+        );
+    """)
+
     conn.commit()
     conn.close()
+
+
+def recalc_nota_from_atividades(conn, aluno_id, materia_id, bimestre):
+    """Recalculate N{bimestre} as the sum of all atividades for that bimestre (capped at 10)."""
+    rows = conn.execute(
+        "SELECT nota FROM atividades WHERE aluno_id=? AND materia_id=? AND bimestre=?",
+        (aluno_id, materia_id, bimestre),
+    ).fetchall()
+    col = f"n{bimestre}"
+    if not rows:
+        conn.execute(
+            f"UPDATE notas SET {col}=NULL WHERE aluno_id=? AND materia_id=?",
+            (aluno_id, materia_id),
+        )
+        return
+    total = round(min(sum(r[0] for r in rows), 10.0), 2)
+    existing = conn.execute(
+        "SELECT id FROM notas WHERE aluno_id=? AND materia_id=?",
+        (aluno_id, materia_id),
+    ).fetchone()
+    if existing:
+        conn.execute(
+            f"UPDATE notas SET {col}=? WHERE aluno_id=? AND materia_id=?",
+            (total, aluno_id, materia_id),
+        )
+    else:
+        conn.execute(
+            f"INSERT INTO notas (aluno_id, materia_id, {col}) VALUES (?,?,?)",
+            (aluno_id, materia_id, total),
+        )
+
+
+def init_usuarios():
+    """Seed a default dev user if the table is empty. Returns seed info or None."""
+    import sys, os
+    api_dir = os.path.join(os.path.dirname(__file__), "..", "04-API")
+    if api_dir not in sys.path:
+        sys.path.insert(0, api_dir)
+    from auth.bcrypt_helper import hash_password
+
+    conn = get_conn()
+    count = conn.execute("SELECT COUNT(*) FROM usuarios").fetchone()[0]
+    if count == 0:
+        hashed = hash_password("admin123")
+        conn.execute(
+            "INSERT INTO usuarios (nome, email, senha_hash, role) VALUES (?,?,?,?)",
+            ("Desenvolvedor", "dev@edunotas.local", hashed, "desenvolvedor"),
+        )
+        conn.commit()
+        print("[Auth] Usuário padrão criado: dev@edunotas.local / admin123")
+    conn.close()
+
 
 def gerar_matricula(sala_id):
     conn = get_conn()
@@ -338,7 +425,8 @@ def get_notas(aluno_id):
 def get_relatorio(sala_id=None):
     conn = get_conn()
     query = """
-        SELECT a.nome as aluno, s.nome as sala, m.nome as materia,
+        SELECT a.nome as aluno_nome, s.nome as sala_nome, m.nome as materia_nome,
+               a.id as aluno_id, s.id as sala_id, m.id as materia_id,
                n.n1, n.n2, n.n3, n.n4
         FROM notas n
         JOIN alunos a ON n.aluno_id=a.id

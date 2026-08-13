@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>EduNotas — Redesign</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#F5F5F2; }
+  body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="var-a-quest.jsx"></script>
+<script type="text/babel" src="var-b-academy.jsx"></script>
+<script type="text/babel">
+  const { DesignCanvas, DCSection, DCArtboard } = window;
+
+  const W = 1280, H = 860;
+
+  const screens = [
+    { id:'dashboard', title:'Dashboard',     A:'A_Dashboard',  B:'B_Dashboard'  },
+    { id:'alunos',    title:'Alunos',        A:'A_Alunos',     B:'B_Alunos'     },
+    { id:'salas',     title:'Salas/Turmas',  A:'A_Salas',      B:'B_Salas'      },
+    { id:'materias',  title:'Matérias',      A:'A_Materias',   B:'B_Materias'   },
+    { id:'notas',     title:'Notas',         A:'A_Notas',      B:'B_Notas'      },
+    { id:'predicoes', title:'Predições (IA)', A:'A_Predicoes', B:'B_Predicoes'  },
+    { id:'relatorio', title:'Relatório',     A:'A_Relatorio',  B:'B_Relatorio'  },
+    { id:'ml',        title:'Machine Learning', A:'A_ML',      B:'B_ML'         },
+  ];
+
+  function App() {
+    return (
+      <DesignCanvas
+        title="EduNotas — Modernização"
+        subtitle="2 direções comparáveis lado a lado: Quest (gamificado vibrante) × Academy (estruturado profissional)"
+      >
+        <DCSection id="intro" title="Direções de design">
+          <DCArtboard id="intro-card" label="Sobre o projeto" width={1280} height={500}>
+            <div style={{ width:1280, height:500, background:'linear-gradient(135deg,#FAF7F2 0%,#F0F4FF 100%)', padding:'48px 60px', fontFamily:"'Inter', system-ui, sans-serif", color:'#0F172A', display:'flex', gap:48 }}>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:11, fontWeight:800, color:'#4F46E5', letterSpacing:'.16em' }}>REDESIGN · EDUNOTAS</div>
+                <div style={{ fontSize:44, fontWeight:900, letterSpacing:'-0.03em', lineHeight:1.05, marginTop:8 }}>Do Tkinter <br/>ao app moderno e gameficado.</div>
+                <div style={{ fontSize:16, color:'#475569', marginTop:16, lineHeight:1.55, maxWidth:540 }}>
+                  Mesma estrutura funcional do seu sistema atual — Dashboard, Alunos, Turmas, Matérias, Notas, Predições, Relatório e Machine Learning — reorganizada em uma interface limpa, com avatares, níveis, XP, streaks e medalhas que tornam o desempenho dos alunos imediatamente compreensível.
+                </div>
+                <div style={{ display:'flex', gap:10, marginTop:24, flexWrap:'wrap' }}>
+                  {['Sidebar colapsável','Avatares com anel de XP','Streak de aprovação','Níveis & medalhas','Predições IA destacadas','Densidade equilibrada'].map(t=>(
+                    <span key={t} style={{ padding:'6px 12px', background:'#fff', border:'1px solid #E2E8F0', borderRadius:999, fontSize:12, fontWeight:700, color:'#475569' }}>{t}</span>
+                  ))}
+                </div>
+              </div>
+              <div style={{ width:380, display:'flex', flexDirection:'column', gap:14 }}>
+                <div style={{ background:'#fff', border:'1px solid #E2E8F0', borderRadius:14, padding:'18px 20px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#4F46E5,#8B5CF6)', display:'grid', placeItems:'center', color:'#fff', fontWeight:900 }}>A</div>
+                    <div style={{ fontSize:16, fontWeight:900 }}>Quest</div>
+                    <span style={{ marginLeft:'auto', fontSize:10, fontWeight:800, padding:'3px 8px', background:'#FEF3C7', color:'#92400E', borderRadius:999 }}>DUOLINGO-STYLE</span>
+                  </div>
+                  <div style={{ fontSize:13, color:'#475569', marginTop:10, lineHeight:1.5 }}>
+                    Vibrante e lúdica. Cards arredondados, anéis de XP, medalhas grandes, fogo de streak. Para escolas que querem trazer energia e engajamento.
+                  </div>
+                  <div style={{ display:'flex', gap:5, marginTop:12 }}>
+                    {['#4F46E5','#EC4899','#F97316','#10B981','#FBBF24'].map(c=>(
+                      <div key={c} style={{ width:24, height:24, background:c, borderRadius:6 }}/>
+                    ))}
+                    <div style={{ marginLeft:'auto', fontSize:11, fontWeight:700, color:'#94A3B8' }}>Nunito • 18pt radius</div>
+                  </div>
+                </div>
+                <div style={{ background:'#fff', border:'1px solid #E2E8F0', borderRadius:14, padding:'18px 20px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:36, height:36, borderRadius:8, background:'#0F172A', display:'grid', placeItems:'center', color:'#fff', fontWeight:900 }}>B</div>
+                    <div style={{ fontSize:16, fontWeight:900 }}>Academy</div>
+                    <span style={{ marginLeft:'auto', fontSize:10, fontWeight:800, padding:'3px 8px', background:'#E0F2FE', color:'#0369A1', borderRadius:999 }}>KHAN-STYLE</span>
+                  </div>
+                  <div style={{ fontSize:13, color:'#475569', marginTop:10, lineHeight:1.5 }}>
+                    Estruturado e profissional. Sidebar escura, tabelas densas, gamificação sutil em barras e badges. Para coordenadores que precisam analisar dados rápido.
+                  </div>
+                  <div style={{ display:'flex', gap:5, marginTop:12 }}>
+                    {['#0F172A','#4F46E5','#0EA5E9','#10B981','#EF4444'].map(c=>(
+                      <div key={c} style={{ width:24, height:24, background:c, borderRadius:6 }}/>
+                    ))}
+                    <div style={{ marginLeft:'auto', fontSize:11, fontWeight:700, color:'#94A3B8' }}>Inter • 10pt radius</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DCArtboard>
+        </DCSection>
+
+        {screens.map(s => (
+          <DCSection key={s.id} id={s.id} title={s.title}>
+            <DCArtboard id={`${s.id}-a`} label={`A · Quest — ${s.title}`} width={W} height={H}>
+              {React.createElement(window[s.A])}
+            </DCArtboard>
+            <DCArtboard id={`${s.id}-b`} label={`B · Academy — ${s.title}`} width={W} height={H}>
+              {React.createElement(window[s.B])}
+            </DCArtboard>
+          </DCSection>
+        ))}
+      </DesignCanvas>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

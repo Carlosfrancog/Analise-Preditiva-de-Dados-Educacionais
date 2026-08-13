@@ -12,6 +12,7 @@ seaborn>=0.11.0
 
 # Utilidades
 openpyxl>=3.1.0  # Já usado por cads.py (versão máxima disponível é 3.1.5)
+python-multipart>=0.0.9  # Obrigatório para upload de arquivos (FastAPI file endpoints)
 
 # Desenvolvimento e testes (opcional)
 jupyter>=1.0.0

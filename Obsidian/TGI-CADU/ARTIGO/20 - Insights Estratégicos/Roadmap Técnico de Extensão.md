@@ -1,4 +1,4 @@
----
+>---
 tags: [artigo, roadmap, extensao, futuro, planejamento]
 created: 2026-05-16
 ---

@@ -21,18 +21,22 @@ sys.path.insert(0, str(project_root / "03-GUI"))
 
 from gui_ml_integration import DisciplinePerformanceAnalyzer, MLModelLoader
 
-# Constantes de cores
-BG        = "#F0F4FF"
-ACCENT    = "#3949AB"
-ACCENT2   = "#5C6BC0"
-SUCCESS   = "#2E7D32"
-WARN      = "#E65100"
-DANGER    = "#C62828"
+# Design tokens — Academy B (matches gui_escola.py)
+BG        = "#F4F6FA"
+ACCENT    = "#4F46E5"
+ACCENT2   = "#818CF8"
+SUCCESS   = "#10B981"
+WARN      = "#F59E0B"
+DANGER    = "#EF4444"
 CARD      = "#FFFFFF"
-TEXT      = "#1A1A2E"
-MUTED     = "#8892B0"
-HEADER_BG = "#E8EAF6"
-ROW_ALT   = "#F5F7FF"
+TEXT      = "#0F172A"
+MUTED     = "#64748B"
+MUTED2    = "#94A3B8"
+HEADER_BG = "#F8FAFC"
+ROW_ALT   = "#F8FAFC"
+BORDER    = "#E5E9F0"
+BLUE_L    = "#E0F2FE"
+INFO      = "#0EA5E9"
 
 FONT_TITLE  = ("Segoe UI", 18, "bold")
 FONT_HEAD   = ("Segoe UI", 12, "bold")
@@ -412,19 +416,19 @@ class DisciplineCardImproved(tk.Frame):
         super().__init__(parent, bg="white", relief="solid", bd=1, **kwargs)
         
         # Header
-        head = tk.Frame(self, bg="#F5F5F5")
+        head = tk.Frame(self, bg=HEADER_BG)
         head.pack(fill="x")
-        
+
         tk.Label(
             head,
             text=disc_info["nome"],
             font=("Segoe UI", 10, "bold"),
-            bg="#F5F5F5",
-            fg="#1A1A2E"
+            bg=HEADER_BG,
+            fg=TEXT
         ).pack(anchor="w", padx=10, pady=6, side="left", expand=True)
-        
+
         # Status badge
-        status_colors = {0: "#C62828", 1: "#E65100", 2: "#2E7D32"}
+        status_colors = {0: DANGER, 1: WARN, 2: SUCCESS}
         status_names = {0: "Reprovado", 1: "Recuperação", 2: "Aprovado"}
         
         status_color = status_colors.get(disc_info["status"], "#666")
@@ -466,67 +470,66 @@ class DisciplineCardImproved(tk.Frame):
                     col,
                     text=f"{value:.1f}",
                     font=("Segoe UI", 10, "bold"),
-                    fg="#1A1A2E"
+                    fg=TEXT
                 ).pack()
         
         # Previsao de N4 se nao estiver preenchida
         if (disc_info.get("n4") is None or disc_info.get("n4") == 0) and disc_info.get("n1") and disc_info.get("n2"):
-            prev_frame = tk.Frame(body, bg="#E3F2FD", relief="flat")
+            prev_frame = tk.Frame(body, bg=BLUE_L, relief="flat")
             prev_frame.pack(fill="x", pady=(6, 0), ipadx=8, ipady=4)
-            
+
             tk.Label(
                 prev_frame,
                 text="Previsão N4:",
                 font=("Segoe UI", 8),
-                bg="#E3F2FD",
-                fg="#1565C0"
+                bg=BLUE_L,
+                fg=INFO
             ).pack(anchor="w")
 
-            # Calcula previsão baseada em slope (tendência)
             media_prevista = self._prever_n4(disc_info)
-            
+
             tk.Label(
                 prev_frame,
                 text=f"~{media_prevista:.1f}",
                 font=("Segoe UI", 11, "bold"),
-                bg="#E3F2FD",
-                fg="#0D47A1"
+                bg=BLUE_L,
+                fg=ACCENT
             ).pack(anchor="w")
         
         # Media ponderada
-        media_frame = tk.Frame(body, bg="#E8EAF6", relief="flat")
+        media_frame = tk.Frame(body, bg=HEADER_BG, relief="flat")
         media_frame.pack(fill="x", pady=(6, 0), ipadx=10, ipady=4)
-        
+
         tk.Label(
             media_frame,
-            text="Media:",
+            text="Média:",
             font=("Segoe UI", 8),
-            bg="#E8EAF6",
-            fg="#5C6BC0"
+            bg=HEADER_BG,
+            fg=MUTED
         ).pack(anchor="w")
-        
+
         tk.Label(
             media_frame,
             text=f"{disc_info['media']:.2f}",
             font=("Segoe UI", 12, "bold"),
-            bg="#E8EAF6",
-            fg="#3949AB"
+            bg=HEADER_BG,
+            fg=ACCENT
         ).pack(anchor="w")
         
         # Prognosis
         if disc_info.get("prognosis"):
             prognosis_colors = {
-                "will_improve":         ("#C8E6C9", "#2E7D32", "↗ Vai Melhorar"),
-                "will_decline":         ("#FFCCBC", "#C62828", "↘ Vai Piorar"),
-                "stable":               ("#FFF9C4", "#F57F17", "→ Estável"),
-                "better_than_expected": ("#C8E6C9", "#2E7D32", "↑ Superou Previsão"),
-                "worse_than_expected":  ("#FFCCBC", "#C62828", "↓ Abaixo do Previsto"),
-                "as_expected":          ("#FFF9C4", "#F57F17", "= Como Previsto"),
+                "will_improve":         ("#D1FAE5", SUCCESS, "↗ Vai Melhorar"),
+                "will_decline":         ("#FEE2E2", DANGER,  "↘ Vai Piorar"),
+                "stable":               ("#FEF3C7", WARN,    "→ Estável"),
+                "better_than_expected": ("#D1FAE5", SUCCESS, "↑ Superou Previsão"),
+                "worse_than_expected":  ("#FEE2E2", DANGER,  "↓ Abaixo do Previsto"),
+                "as_expected":          ("#FEF3C7", WARN,    "= Como Previsto"),
             }
-            
+
             bg_color, fg_color, text = prognosis_colors.get(
                 disc_info.get("prognosis"),
-                ("#F5F5F5", "#666", "?")
+                (HEADER_BG, MUTED, "?")
             )
             
             prog_frame = tk.Frame(body, bg=bg_color, relief="flat")

@@ -13,3 +13,5 @@ Obsidian/**/*.css
 Obsidian/**/*.base
 Obsidian/**/*.zip
 *.pdf
+05-web/node_modules/
+05-web/dist/
