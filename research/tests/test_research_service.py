@@ -2,9 +2,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 
-from research.models.artifacts import load_artifact, train_and_save_artifacts
-from research.services.research_service import ResearchService
+from research.models.artifacts import (
+    clear_artifact_cache,
+    load_artifact,
+    train_and_save_artifacts,
+)
+from research.services.research_service import ResearchService, ResearchServiceError
 
 
 def _write_snapshots(root: Path) -> None:
@@ -36,6 +41,7 @@ def _write_snapshots(root: Path) -> None:
 
 
 def test_research_service_reads_catalog_and_predicts(tmp_path):
+    clear_artifact_cache()
     _write_snapshots(tmp_path)
     train_and_save_artifacts(
         tmp_path / "research" / "data" / "snapshots",
@@ -47,6 +53,11 @@ def test_research_service_reads_catalog_and_predicts(tmp_path):
     assert [(item["cutoff"], item["model_available"]) for item in catalog] == [
         ("M1", True), ("M2", True), ("M3", True)
     ]
+    assert all(item["source"] == "synthetic" for item in catalog)
+
+    first_model, _ = load_artifact(service.artifact_dir, "M2")
+    second_model, _ = load_artifact(service.artifact_dir, "M2")
+    assert first_model is second_model
 
     with patch(
         "research.services.research_service.load_artifact",
@@ -63,3 +74,52 @@ def test_research_service_reads_catalog_and_predicts(tmp_path):
         "n1_norm", "n2_norm", "slope_n1_n2", "variance_n1_n2",
         "attendance_n2", "serie_num_norm",
     }
+
+    (service.artifact_dir / "M3.pkl").unlink()
+    refreshed = service.catalog()
+    assert next(item for item in refreshed if item["cutoff"] == "M3")[
+        "model_available"
+    ] is False
+
+
+def test_manual_prediction_rejects_invalid_feature_contract(tmp_path):
+    clear_artifact_cache()
+    _write_snapshots(tmp_path)
+    train_and_save_artifacts(
+        tmp_path / "research" / "data" / "snapshots",
+        tmp_path / "research" / "artifacts",
+    )
+    service = ResearchService(tmp_path)
+    valid = {
+        "n1_norm": 0.7,
+        "attendance_n1": 0.9,
+        "serie_num_norm": 0.5,
+    }
+
+    with pytest.raises(ResearchServiceError, match="features ausentes"):
+        service.predict_features("M1", {"n1_norm": 0.7})
+    with pytest.raises(ResearchServiceError, match="features inválidas"):
+        service.predict_features("M1", {**valid, "n4_norm": 0.8})
+    with pytest.raises(ResearchServiceError, match="fora do intervalo"):
+        service.predict_features("M1", {**valid, "n1_norm": 1.2})
+    with pytest.raises(ResearchServiceError, match="deve ser finita"):
+        service.predict_features("M1", {**valid, "n1_norm": float("nan")})
+
+
+def test_samples_preserve_missing_values_for_the_ui(tmp_path):
+    clear_artifact_cache()
+    _write_snapshots(tmp_path)
+    train_and_save_artifacts(
+        tmp_path / "research" / "data" / "snapshots",
+        tmp_path / "research" / "artifacts",
+    )
+    snapshot_path = (
+        tmp_path / "research" / "data" / "snapshots" / "experimental_dataset_M2.csv"
+    )
+    snapshot = pd.read_csv(snapshot_path)
+    snapshot.loc[0, "n2_norm"] = float("nan")
+    snapshot.to_csv(snapshot_path, index=False)
+
+    sample = ResearchService(tmp_path).samples("M2", limit=1)[0]
+    assert sample["n2_norm"] is None
+    assert sample["prediction"]["features"]["n2_norm"] is None

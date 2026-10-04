@@ -41,6 +41,12 @@ def research_status() -> dict[str, Any]:
             else "not_ready"
         ),
         "pipeline": "research-rf-v1",
+        "source": "synthetic",
+        "experimental": True,
+        "warning": (
+            "Dados sintéticos e modelos demonstrativos; não usar como resultado "
+            "final do artigo nem como decisão pedagógica automática."
+        ),
         "snapshots": catalog,
     }
 

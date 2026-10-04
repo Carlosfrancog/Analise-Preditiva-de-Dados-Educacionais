@@ -46,6 +46,11 @@ Os endpoints novos são:
 - `GET /api/research/snapshots/M2/samples?limit=30` — amostras com predição;
 - `POST /api/research/predict` — inferência para um vetor de features.
 
+O status identifica explicitamente a fonte como `synthetic`, marca o fluxo como
+experimental e só retorna `ready` quando os três snapshots e os respectivos
+pares de artefatos (`.pkl` + `.json`) estão disponíveis. A predição manual
+rejeita features ausentes, extras, não finitas ou fora do intervalo esperado.
+
 Em outro terminal, para iniciar a interface:
 
 ```powershell
@@ -55,9 +60,10 @@ npm run dev
 ```
 
 A tela **Pesquisa temporal** aparece no menu lateral e consome exclusivamente
-o namespace `/api/research`. Ela exibe dados sintéticos da primeira execução;
-esses artefatos continuam identificados como experimentais e não devem ser
-apresentados como resultado final do artigo.
+o namespace `/api/research`. Ela exibe a prontidão da pipeline, a fonte dos
+dados, filtros por aluno e ano e todas as features disponíveis em cada corte.
+Os dados continuam identificados como sintéticos e os artefatos como
+experimentais; nenhum deles deve ser apresentado como resultado final do artigo.
 
 ## Testes
 

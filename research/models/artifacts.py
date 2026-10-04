@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import pickle
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -64,7 +65,8 @@ def train_and_save_artifacts(
         estimator.fit(data[features], data["target"])
 
         model_path, metadata_path = _paths(artifact_dir, cutoff)
-        model_path.write_bytes(pickle.dumps(estimator, protocol=pickle.HIGHEST_PROTOCOL))
+        with model_path.open("wb") as model_file:
+            pickle.dump(estimator, model_file, protocol=pickle.HIGHEST_PROTOCOL)
         metadata = {
             "artifact_version": ARTIFACT_VERSION,
             "model_name": "random_forest",
@@ -90,23 +92,52 @@ def train_and_save_artifacts(
 
 
 def load_artifact(artifact_dir: Path, cutoff: str) -> tuple[Any, dict[str, Any]]:
-    """Carrega o modelo e os metadados de um corte."""
+    """Carrega modelo e metadados, reutilizando-os enquanto os arquivos não mudarem."""
     cutoff = cutoff.upper()
     model_path, metadata_path = _paths(artifact_dir, cutoff)
     if not model_path.exists() or not metadata_path.exists():
         raise FileNotFoundError(
             f"artefato {cutoff} ausente; execute research.run_initial_pipeline"
         )
-    model = pickle.loads(model_path.read_bytes())
-    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    model_stat = model_path.stat()
+    metadata_stat = metadata_path.stat()
+    return _load_artifact_cached(
+        str(model_path.resolve()),
+        str(metadata_path.resolve()),
+        model_stat.st_mtime_ns,
+        model_stat.st_size,
+        metadata_stat.st_mtime_ns,
+        metadata_stat.st_size,
+    )
+
+
+@lru_cache(maxsize=12)
+def _load_artifact_cached(
+    model_path: str,
+    metadata_path: str,
+    model_mtime_ns: int,
+    model_size: int,
+    metadata_mtime_ns: int,
+    metadata_size: int,
+) -> tuple[Any, dict[str, Any]]:
+    """Mantém em memória somente versões identificadas pela assinatura dos arquivos."""
+    del model_mtime_ns, model_size, metadata_mtime_ns, metadata_size
+    with Path(model_path).open("rb") as model_file:
+        model = pickle.load(model_file)
+    metadata = json.loads(Path(metadata_path).read_text(encoding="utf-8"))
     return model, metadata
+
+
+def clear_artifact_cache() -> None:
+    """Limpa o cache após retreino ou em testes isolados."""
+    _load_artifact_cached.cache_clear()
 
 
 def list_artifacts(artifact_dir: Path) -> list[dict[str, Any]]:
     """Lista os metadados disponíveis sem carregar os modelos."""
     result = []
     for cutoff in SNAPSHOT_FEATURES:
-        _, metadata_path = _paths(artifact_dir, cutoff)
-        if metadata_path.exists():
+        model_path, metadata_path = _paths(artifact_dir, cutoff)
+        if model_path.exists() and metadata_path.exists():
             result.append(json.loads(metadata_path.read_text(encoding="utf-8")))
     return result

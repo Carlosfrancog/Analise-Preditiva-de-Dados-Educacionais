@@ -49,17 +49,55 @@ class ResearchService:
         result = []
         for cutoff, features in SNAPSHOT_FEATURES.items():
             path = self.snapshot_dir / f"experimental_dataset_{cutoff}.csv"
-            rows = int(pd.read_csv(path, nrows=0).shape[0]) if path.exists() else 0
+            rows = 0
             if path.exists():
-                rows = sum(1 for _ in path.open("r", encoding="utf-8")) - 1
+                with path.open("r", encoding="utf-8") as snapshot_file:
+                    rows = sum(1 for _ in snapshot_file) - 1
             result.append({
                 "cutoff": cutoff,
                 "features": features,
                 "rows": max(rows, 0),
+                "data_available": rows > 0,
+                "source": "synthetic",
                 "model_available": cutoff in artifacts,
                 "model": artifacts.get(cutoff),
             })
         return result
+
+    @staticmethod
+    def _validated_features(
+        cutoff: str,
+        expected: list[str],
+        values: dict[str, Any],
+    ) -> dict[str, float]:
+        missing = [name for name in expected if name not in values]
+        if missing:
+            raise ResearchServiceError(
+                f"features ausentes para {cutoff}: {', '.join(missing)}"
+            )
+
+        unexpected = sorted(set(values).difference(expected))
+        if unexpected:
+            raise ResearchServiceError(
+                f"features inválidas para {cutoff}: {', '.join(unexpected)}"
+            )
+
+        normalized: dict[str, float] = {}
+        for name in expected:
+            try:
+                value = float(values[name])
+            except (TypeError, ValueError) as error:
+                raise ResearchServiceError(f"feature {name} deve ser numérica") from error
+            if not np.isfinite(value):
+                raise ResearchServiceError(f"feature {name} deve ser finita")
+
+            lower, upper = (-1.0, 1.0) if name.startswith("slope_") else (0.0, 1.0)
+            if value < lower or value > upper:
+                raise ResearchServiceError(
+                    f"feature {name} fora do intervalo [{lower:g}, {upper:g}]"
+                )
+            normalized[name] = value
+        return normalized
 
     def _prediction(
         self,
@@ -70,15 +108,13 @@ class ResearchService:
         cutoff = self.normalize_cutoff(cutoff)
         model, metadata = artifact or load_artifact(self.artifact_dir, cutoff)
         features = metadata["features"]
-        missing = [name for name in features if name not in values]
-        if missing:
-            raise ResearchServiceError(f"features ausentes para {cutoff}: {', '.join(missing)}")
+        normalized = self._validated_features(cutoff, features, values)
 
-        frame = pd.DataFrame([{name: values[name] for name in features}])
+        frame = pd.DataFrame([normalized])
         predicted = int(model.predict(frame)[0])
         probabilities_array = model.predict_proba(frame)[0]
         return self._prediction_result(
-            cutoff, values, model, metadata, predicted, probabilities_array
+            cutoff, normalized, model, metadata, predicted, probabilities_array
         )
 
     @staticmethod
@@ -93,9 +129,14 @@ class ResearchService:
         features = metadata["features"]
         model_step = model.named_steps.get("model") if hasattr(model, "named_steps") else model
         model_classes = getattr(model_step, "classes_", [0, 1, 2])
-        probabilities = {
+        probabilities = {label: 0.0 for label in LABELS.values()}
+        probabilities.update({
             LABELS[int(class_value)]: round(float(probability), 6)
             for class_value, probability in zip(model_classes, probabilities_array)
+        })
+        serialized_features = {
+            name: None if pd.isna(values[name]) else float(values[name])
+            for name in features
         }
         return {
             "cutoff": cutoff,
@@ -104,7 +145,7 @@ class ResearchService:
             "predicted_label": LABELS.get(predicted, str(predicted)),
             "confidence": round(float(max(probabilities.values())), 6),
             "probabilities": probabilities,
-            "features": {name: float(values[name]) for name in features},
+            "features": serialized_features,
             "artifact": {
                 "version": metadata["artifact_version"],
                 "trained_rows": metadata["trained_rows"],
