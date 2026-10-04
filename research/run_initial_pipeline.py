@@ -11,6 +11,7 @@ from research.data.audit_dataset import audit_dataset
 from research.data.generate_dataset import DatasetConfig, write_dataset
 from research.evaluation.benchmark import run_benchmark
 from research.features.temporal_snapshots import build_all_snapshots
+from research.models.artifacts import train_and_save_artifacts
 import pandas as pd
 import json
 
@@ -37,6 +38,7 @@ def main() -> None:
     for name, snapshot in build_all_snapshots(data).items():
         snapshot.to_csv(snapshots / f"experimental_dataset_{name}.csv", index=False)
 
+    artifacts = train_and_save_artifacts(snapshots, RESEARCH / "artifacts")
     benchmark = run_benchmark(dataset, reports / "initial_benchmark.json")
     lines = [
         "# Primeiro experimento da pipeline de pesquisa",
@@ -50,6 +52,7 @@ def main() -> None:
         f"- Registros sintéticos: **{len(data):,}**".replace(",", "."),
         f"- Registros legados auditados: **{legacy_report['rows']:,}**".replace(",", "."),
         f"- Resultados gerados: **{len(benchmark['results'])}**",
+        f"- Artefatos para a API: **{len(artifacts)} modelos temporais**",
         f"- Seed: **{benchmark['seed']}**",
         "- Fonte sintética: dados gerados localmente, sem estudantes reais.",
         "",
@@ -66,6 +69,7 @@ def main() -> None:
         "3. instalar e avaliar o candidato XGBoost ou CatBoost;",
         "4. integrar o snapshot versionado à API;",
         "5. repetir o experimento com o protocolo aprovado para o artigo.",
+        "6. consumir os endpoints `/api/research` pela interface, mantendo a distinção entre demonstração e resultado oficial.",
     ]
     (reports / "initial_pipeline_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     summary = {
@@ -75,6 +79,7 @@ def main() -> None:
         "legacy_rows": legacy_report["rows"],
         "legacy_suspect_columns": legacy_report["leakage_suspect_columns"],
         "benchmark_results": len(benchmark["results"]),
+        "research_artifacts": [item["cutoff"] for item in artifacts],
         "status": "initial_experiment_complete",
     }
     (reports / "initial_pipeline_summary.json").write_text(

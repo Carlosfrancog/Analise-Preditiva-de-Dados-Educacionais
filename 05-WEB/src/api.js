@@ -178,4 +178,18 @@ export const api = {
   gerarFeatures:    (sala_id, pesos) => post('/ml/gerar', { sala_id, pesos }),
   gerarGenericos:   (sala_id, n) => post(`/alunos/genericos?sala_id=${sala_id}&quantidade=${n}`),
   atribuirMaterias: () => post('/alunos/atribuir-materias'),
+
+  // Pesquisa temporal — pipeline experimental do artigo
+  researchStatus:    () => get('/research/status'),
+  researchSnapshots: () => get('/research/snapshots'),
+  researchSamples: (cutoff, params = {}) => {
+    const q = new URLSearchParams({
+      limit: String(params.limit ?? 25),
+      include_prediction: String(params.includePrediction ?? true),
+    })
+    if (params.studentId) q.set('student_id', params.studentId)
+    if (params.academicYear) q.set('academic_year', String(params.academicYear))
+    return get(`/research/snapshots/${cutoff}/samples?${q}`)
+  },
+  researchPredict: (cutoff, features) => post('/research/predict', { cutoff, features }),
 }

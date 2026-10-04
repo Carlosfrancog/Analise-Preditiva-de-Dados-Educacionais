@@ -9,6 +9,7 @@
 - Registros sintéticos: **62.400**
 - Registros legados auditados: **15.613**
 - Resultados gerados: **18**
+- Artefatos para a API: **3 modelos temporais**
 - Seed: **20261004**
 - Fonte sintética: dados gerados localmente, sem estudantes reais.
 
@@ -25,3 +26,4 @@ A presença de `n4_norm` e `media_pond_norm` impede usar as métricas antigas co
 3. instalar e avaliar o candidato XGBoost ou CatBoost;
 4. integrar o snapshot versionado à API;
 5. repetir o experimento com o protocolo aprovado para o artigo.
+6. consumir os endpoints `/api/research` pela interface, mantendo a distinção entre demonstração e resultado oficial.

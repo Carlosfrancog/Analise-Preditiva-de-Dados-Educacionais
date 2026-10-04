@@ -16,6 +16,7 @@ import ModelSelect from './pages/ModelSelect'
 import Login from './pages/Login'
 import Exportar from './pages/Exportar'
 import Importar from './pages/Importar'
+import Pesquisa from './pages/Pesquisa'
 
 function RootRedirect() {
   const { isLoggedIn } = useAuth()
@@ -50,6 +51,7 @@ function AppShell() {
           } />
           <Route path="/importar"   element={<Importar />} />
           <Route path="/exportar"   element={<Exportar />} />
+          <Route path="/pesquisa"   element={<Pesquisa />} />
           <Route path="*"           element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
