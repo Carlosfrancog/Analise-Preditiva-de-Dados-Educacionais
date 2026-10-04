@@ -61,9 +61,14 @@ class ResearchService:
             })
         return result
 
-    def _prediction(self, cutoff: str, values: dict[str, Any]) -> dict[str, Any]:
+    def _prediction(
+        self,
+        cutoff: str,
+        values: dict[str, Any],
+        artifact: tuple[Any, dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         cutoff = self.normalize_cutoff(cutoff)
-        model, metadata = load_artifact(self.artifact_dir, cutoff)
+        model, metadata = artifact or load_artifact(self.artifact_dir, cutoff)
         features = metadata["features"]
         missing = [name for name in features if name not in values]
         if missing:
@@ -72,6 +77,20 @@ class ResearchService:
         frame = pd.DataFrame([{name: values[name] for name in features}])
         predicted = int(model.predict(frame)[0])
         probabilities_array = model.predict_proba(frame)[0]
+        return self._prediction_result(
+            cutoff, values, model, metadata, predicted, probabilities_array
+        )
+
+    @staticmethod
+    def _prediction_result(
+        cutoff: str,
+        values: dict[str, Any],
+        model: Any,
+        metadata: dict[str, Any],
+        predicted: int,
+        probabilities_array: Any,
+    ) -> dict[str, Any]:
+        features = metadata["features"]
         model_step = model.named_steps.get("model") if hasattr(model, "named_steps") else model
         model_classes = getattr(model_step, "classes_", [0, 1, 2])
         probabilities = {
@@ -121,7 +140,30 @@ class ResearchService:
                 key: (None if pd.isna(value) else value.item() if isinstance(value, np.generic) else value)
                 for key, value in raw.items()
             }
-            if include_prediction:
-                record["prediction"] = self._prediction(cutoff, record)
             records.append(record)
+
+        if include_prediction and records:
+            model, metadata = load_artifact(self.artifact_dir, cutoff)
+            features = metadata["features"]
+            missing = [name for name in features if name not in records[0]]
+            if missing:
+                raise ResearchServiceError(
+                    f"features ausentes para {cutoff}: {', '.join(missing)}"
+                )
+            frame = pd.DataFrame(
+                [{name: record[name] for name in features} for record in records]
+            )
+            predicted_values = model.predict(frame)
+            probabilities = model.predict_proba(frame)
+            for record, predicted, probability_values in zip(
+                records, predicted_values, probabilities
+            ):
+                record["prediction"] = self._prediction_result(
+                    cutoff,
+                    record,
+                    model,
+                    metadata,
+                    int(predicted),
+                    probability_values,
+                )
         return records

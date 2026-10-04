@@ -35,7 +35,11 @@ def research_status() -> dict[str, Any]:
     except ResearchServiceError as error:
         raise _domain_error(error) from error
     return {
-        "status": "ready" if any(item["model_available"] for item in catalog) else "not_ready",
+        "status": (
+            "ready"
+            if all(item["rows"] > 0 and item["model_available"] for item in catalog)
+            else "not_ready"
+        ),
         "pipeline": "research-rf-v1",
         "snapshots": catalog,
     }
