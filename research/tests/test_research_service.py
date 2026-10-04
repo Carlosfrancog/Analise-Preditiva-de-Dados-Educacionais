@@ -1,8 +1,9 @@
 from pathlib import Path
+from unittest.mock import patch
 
 import pandas as pd
 
-from research.models.artifacts import train_and_save_artifacts
+from research.models.artifacts import load_artifact, train_and_save_artifacts
 from research.services.research_service import ResearchService
 
 
@@ -47,7 +48,15 @@ def test_research_service_reads_catalog_and_predicts(tmp_path):
         ("M1", True), ("M2", True), ("M3", True)
     ]
 
-    sample = service.samples("M2", limit=1)[0]
+    with patch(
+        "research.services.research_service.load_artifact",
+        wraps=load_artifact,
+    ) as artifact_loader:
+        samples = service.samples("M2", limit=3)
+
+    assert artifact_loader.call_count == 1
+    assert all("prediction" in item for item in samples)
+    sample = samples[0]
     assert sample["student_id"] == "stu_0"
     assert sample["prediction"]["cutoff"] == "M2"
     assert set(sample["prediction"]["features"]) == {
