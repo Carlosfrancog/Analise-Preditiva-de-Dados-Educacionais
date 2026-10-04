@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "01-CORE"))
 sys.path.insert(0, str(ROOT / "02-ML"))
 
@@ -15,7 +16,7 @@ from fastapi.responses import FileResponse
 import cads
 from ml_service import MLService
 
-from routers import dashboard, alunos, salas, materias, notas, predicoes, relatorio, ml_features, auth, users, atividades, presencas, exportar, importar
+from routers import dashboard, alunos, salas, materias, notas, predicoes, relatorio, ml_features, auth, users, atividades, presencas, exportar, importar, research
 
 app = FastAPI(title="EduNotas API", version="2.0")
 
@@ -49,6 +50,7 @@ for router in [
     presencas.router,
     exportar.router,
     importar.router,
+    research.router,
 ]:
     app.include_router(router, prefix="/api")
 

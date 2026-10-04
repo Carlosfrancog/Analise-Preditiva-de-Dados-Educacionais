@@ -3,6 +3,7 @@ import {
   Home, Users, Building2, BookOpen, PenLine,
   Target, BarChart3, Upload, Download,
   Zap, GraduationCap, Settings, Loader2, LogOut, ShieldCheck,
+  FlaskConical,
 } from 'lucide-react'
 import { useModel } from '../context/ModelContext'
 import { useAuth } from '../context/AuthContext'
@@ -21,6 +22,7 @@ const NAV = [
   { to: '/notas',     label: 'Notas',          Icon: PenLine },
   { to: '/predicoes', label: 'Predições',      Icon: Target,    badge: 'IA', badgeAccent: true },
   { to: '/relatorio', label: 'Relatório',      Icon: BarChart3 },
+  { to: '/pesquisa',  label: 'Pesquisa temporal', Icon: FlaskConical, badge: 'NOVO', badgeAccent: false },
   { to: '/config',    label: 'Machine Learning', Icon: Settings,     section: 'AVANÇADO', adminOnly: true },
   { to: '/usuarios',  label: 'Usuários',         Icon: ShieldCheck,  adminOnly: true },
   { to: '/importar',  label: 'Importar Excel',   Icon: Upload,       section: 'DADOS' },

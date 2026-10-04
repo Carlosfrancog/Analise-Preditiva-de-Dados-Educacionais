@@ -51,6 +51,7 @@ def build_snapshot(df: pd.DataFrame, model_name: str) -> pd.DataFrame:
     result = pd.DataFrame(index=data.index)
     result["student_id"] = data.get("student_id", data.get("aluno", "unknown"))
     result["school_id"] = data.get("school_id", data.get("turma", "unknown"))
+    result["subject_id"] = data.get("subject_id", data.get("materia", "unknown"))
     result["academic_year"] = data.get("academic_year", 0)
     result["target"] = data["status_encoded"].astype("Int64")
     result["cutoff"] = model_name
@@ -77,7 +78,7 @@ def build_snapshot(df: pd.DataFrame, model_name: str) -> pd.DataFrame:
     if forbidden:
         raise AssertionError(f"features proibidas no snapshot {model_name}: {forbidden}")
 
-    return result[["student_id", "school_id", "academic_year", "cutoff", "target", *features]]
+    return result[["student_id", "school_id", "subject_id", "academic_year", "cutoff", "target", *features]]
 
 
 def build_all_snapshots(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
@@ -101,4 +102,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
