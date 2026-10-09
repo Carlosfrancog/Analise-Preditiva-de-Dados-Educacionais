@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "producer": "nestor-reader",
+  "repository": "PROJETO_FICTICIO",
+  "commit": "UNKNOWN",
+  "generated_at": "2026-10-09T12:00:00Z",
+  "evidence": [
+    {
+      "id": "src-1",
+      "path": "app/Models/RegistroExemplo.php",
+      "line": 12,
+      "symbol": "RegistroExemplo::belongsTo",
+      "label": "FACT",
+      "observation": "Método de relação belongsTo declarado no código fictício. Não comprova existência de FK física.",
+      "method": "read-code"
+    }
+  ],
+  "findings": [
+    {
+      "id": "f-1",
+      "kind": "eloquent_relation",
+      "symbol": "RegistroExemplo::belongsTo",
+      "description": "Relação declarada em código; precisa ser confrontada com migrations.",
+      "evidence_refs": [
+        "src-1"
+      ],
+      "label": "FACT"
+    }
+  ],
+  "gaps": [
+    "Confirmar existência da FK no schema físico."
+  ]
+}

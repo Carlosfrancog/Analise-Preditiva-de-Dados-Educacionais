@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.nestor.local/docker/1.0/handoff.schema.json",
+  "title": "Nestor inter-agent handoff",
+  "description": "Informações mínimas entre agentes, sem secrets",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "from_agent": {
+      "const": "Nestor Docker"
+    },
+    "to_agent": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "enum": [
+              "FACT",
+              "INFERENCE",
+              "HYPOTHESIS",
+              "UNKNOWN"
+            ]
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "collected_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "context": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "probable",
+              "uncertain",
+              "not_assessed"
+            ]
+          }
+        },
+        "required": [
+          "label",
+          "statement",
+          "confidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "requested_action": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "secrets_included": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "from_agent",
+    "to_agent",
+    "objective",
+    "scope",
+    "facts",
+    "requested_action",
+    "constraints",
+    "secrets_included"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "task_id": "example-docker-001",
+  "from_agent": "Nestor Docker",
+  "to_agent": "Nestor Claws",
+  "objective": "Solicitar auditoria de exposição de serviço em ambiente de teste",
+  "scope": "Revisar arquivo Compose e política de publicação de portas; nenhuma operação mutável",
+  "facts": [
+    {
+      "label": "HYPOTHESIS",
+      "statement": "A publicação ampla de porta pode elevar a superfície de ataque; verificar configuração real",
+      "source": "Exemplo fictício",
+      "collected_at": null,
+      "context": "Treinamento; sem coleta ao vivo",
+      "confidence": "uncertain"
+    }
+  ],
+  "requested_action": "Auditar topologia e recomendações de isolamento sem alterar configurações",
+  "constraints": ["Sem credenciais", "Sem deploy", "Sem modificação de banco"],
+  "artifacts": ["compose.yaml (exemplo, a fornecer)"],
+  "secrets_included": false
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "repository": "PROJETO_FICTICIO",
+  "checks": [
+    {
+      "name": "Schema real PostgreSQL",
+      "status": "NOT_RUN",
+      "evidence": "Nenhuma conexão ao banco realizada."
+    },
+    {
+      "name": "Revisão conceitual",
+      "status": "BLOCKED",
+      "evidence": "Cardinalidade ainda não confirmada."
+    }
+  ],
+  "database_modified": false,
+  "limitations": [
+    "Sem projeto real ou executor de banco autorizado."
+  ]
+}

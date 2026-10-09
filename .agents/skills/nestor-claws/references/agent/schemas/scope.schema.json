@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nestor-claws.local/schemas/scope.schema.json",
+  "title": "Escopo de auditoria — Nestor Claws",
+  "description": "Registro do repositório, revisão, ambiente, ativos permitidos, ferramentas autorizadas e exclusões do escopo, conforme o passo 1 do pipeline de análise.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "repository",
+    "revision",
+    "environment",
+    "allowed_assets",
+    "authorized_tools",
+    "exclusions",
+    "active_tests_authorized"
+  ],
+  "properties": {
+    "repository": {
+      "type": "string",
+      "description": "Identificador do repositório ou caminho local auditado."
+    },
+    "revision": {
+      "type": "string",
+      "description": "Commit, tag ou revisão específica analisada."
+    },
+    "environment": {
+      "type": "string",
+      "description": "Ambiente ao qual este escopo se aplica (ex.: código estático, homologação isolada). Nunca presumir produção."
+    },
+    "allowed_assets": {
+      "type": "array",
+      "description": "Ativos (rotas, serviços, hosts, tabelas) explicitamente incluídos no escopo.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "authorized_tools": {
+      "type": "array",
+      "description": "Ferramentas autorizadas para esta auditoria, conforme policies/tools-policy.md.",
+      "items": { "type": "string" }
+    },
+    "exclusions": {
+      "type": "array",
+      "description": "Ativos, rotas ou verificações explicitamente fora do escopo.",
+      "items": { "type": "string" }
+    },
+    "active_tests_authorized": {
+      "type": "boolean",
+      "description": "Reflete permissions.run_active_tests para esta sessão. false por padrão."
+    },
+    "active_test_authorization": {
+      "type": "object",
+      "description": "Obrigatório quando active_tests_authorized = true (ver runbooks/autorizacao-testes-ativos.md).",
+      "additionalProperties": false,
+      "required": ["target", "environment", "scope", "granted_by"],
+      "properties": {
+        "target": { "type": "string" },
+        "environment": { "type": "string" },
+        "scope": { "type": "string" },
+        "granted_by": { "type": "string" },
+        "test_credentials_provided": { "type": "boolean" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "active_tests_authorized": { "const": true } },
+        "required": ["active_tests_authorized"]
+      },
+      "then": { "required": ["active_test_authorization"] }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "repository": "PROJETO_FICTICIO",
+  "scope": "Exemplo ilustrativo; nenhuma alteração real planejada",
+  "risk_level": "moderate",
+  "changes": [
+    {
+      "artifact": "database/migrations/EXEMPLO.php",
+      "action": "create_new_migration_draft",
+      "reason": "Exercício de formato; não executar",
+      "evidence_refs": [
+        "src-1"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "name": "expand",
+      "objective": "Criar migration de inclusão compatível",
+      "requires_authorized_executor": false
+    },
+    {
+      "name": "apply",
+      "objective": "Aplicação no PostgreSQL por executor autorizado",
+      "requires_authorized_executor": true
+    }
+  ],
+  "prechecks": [
+    "Confirmar schema físico e permissão."
+  ],
+  "postchecks": [
+    "Testar constraints com executor autorizado."
+  ],
+  "rollback": {
+    "strategy": "Definir rollback a partir da migração final aprovada",
+    "data_recovery_guaranteed": false
+  },
+  "execution": {
+    "executed": false,
+    "status": "NOT_RUN",
+    "reason": "Permissão modify_database=false"
+  }
+}

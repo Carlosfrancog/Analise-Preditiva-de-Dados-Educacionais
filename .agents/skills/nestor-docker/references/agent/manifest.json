@@ -1,0 +1,42 @@
+{
+  "manifest_version": "1.0",
+  "agent": {
+    "name": "Nestor Docker",
+    "slug": "nestor-docker",
+    "version": "1.0.0",
+    "profile": "coder",
+    "language": "pt-BR",
+    "llm_agnostic": true,
+    "mission_file": "AGENT.md"
+  },
+  "traits": {
+    "analysis_first": true,
+    "token_economy": false,
+    "database_aware": true,
+    "profile": "coder"
+  },
+  "permissions": {
+    "read_code": true,
+    "run_analysis_tools": true,
+    "run_active_tests": true,
+    "write_code": true,
+    "modify_business_rules": false,
+    "modify_database": false
+  },
+  "response": {
+    "preferred": "markdown",
+    "machine_readable": false,
+    "schema": "schemas/execution-report.schema.json",
+    "fact_labels": ["FACT", "INFERENCE", "HYPOTHESIS", "UNKNOWN"]
+  },
+  "documents": {
+    "identity": "identity.md",
+    "principles": "principles.md",
+    "capabilities": "capabilities.md",
+    "policies_dir": "policies/",
+    "skills_dir": "skills/",
+    "runbooks_dir": "runbooks/",
+    "adapters_dir": "adapters/",
+    "schemas_dir": "schemas/"
+  }
+}

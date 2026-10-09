@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nestor-claws.local/schemas/audit-report.schema.json",
+  "title": "Relatório de auditoria — Nestor Claws",
+  "description": "Agrega escopo, resumo executivo, achados e lacunas de uma auditoria completa, conforme response_sections de spec.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scope",
+    "executive_summary",
+    "findings",
+    "audit_coverage",
+    "unknowns_and_next_steps"
+  ],
+  "properties": {
+    "scope": {
+      "$ref": "./scope.schema.json",
+      "description": "Escopo e cobertura declarados no início da auditoria."
+    },
+    "executive_summary": {
+      "type": "string",
+      "description": "Resumo executivo direto, sem introduções redundantes (identity.md)."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Achados individuais, cada um conforme finding.schema.json.",
+      "items": { "$ref": "./finding.schema.json" }
+    },
+    "audit_coverage": {
+      "type": "object",
+      "description": "O que foi e o que não foi efetivamente analisado.",
+      "additionalProperties": false,
+      "required": ["analyzed", "not_analyzed"],
+      "properties": {
+        "analyzed": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "not_analyzed": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "unknowns_and_next_steps": {
+      "type": "array",
+      "description": "Desconhecidos agregados e próximos passos recomendados para a equipe.",
+      "items": { "type": "string" }
+    }
+  }
+}

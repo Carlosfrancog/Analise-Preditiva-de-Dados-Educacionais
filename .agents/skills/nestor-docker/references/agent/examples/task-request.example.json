@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "task_id": "example-docker-001",
+  "objective": "Diagnosticar reinícios frequentes do serviço api em homologação sem modificar recursos",
+  "environment": "homolog",
+  "docker_context": "homolog-remote",
+  "repository_path": "/projeto/exemplo",
+  "project": "exemplo",
+  "services": ["api"],
+  "requested_mode": "inspect",
+  "authorized_operations": ["read_project_config", "read_scoped_status", "read_redacted_logs"],
+  "constraints": ["Não reiniciar serviços", "Não ler/exibir secrets", "Não modificar banco de dados"],
+  "acceptance_criteria": ["Relatório com fatos, hipóteses verificáveis e plano sem execução"]
+}

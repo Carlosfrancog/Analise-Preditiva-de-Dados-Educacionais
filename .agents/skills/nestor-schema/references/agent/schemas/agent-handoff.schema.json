@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Nestor Agent Handoff 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "from_agent",
+    "to_agent",
+    "repository",
+    "goal",
+    "evidence_refs",
+    "requests",
+    "authorization_required"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "from_agent": {
+      "type": "string"
+    },
+    "to_agent": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authorization_required": {
+      "type": "boolean"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "ready",
+        "delivered",
+        "acknowledged"
+      ]
+    }
+  }
+}

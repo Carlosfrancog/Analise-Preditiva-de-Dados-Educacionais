@@ -1,0 +1,67 @@
+{
+  "id": "NC-2026-001",
+  "title": "SQL Injection em POST /api/v1/invoices/search (campo 'customer')",
+  "state": "verified",
+  "severity": {
+    "level": "high",
+    "justification": "Permite leitura de dados de faturamento de outros clientes via injeção booleana em cláusula WHERE construída por concatenação.",
+    "cvss": {
+      "version": "3.1",
+      "vector": "AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+      "score": 7.1
+    }
+  },
+  "confidence": {
+    "level": "high",
+    "rationale": "Caminho completo da entrada até a execução SQL confirmado estaticamente, com concatenação direta de string não parametrizada."
+  },
+  "affected_assets": [
+    "serviço: billing-api",
+    "tabela: invoices"
+  ],
+  "root_cause": "O parâmetro 'customer' do corpo da requisição é concatenado diretamente na cláusula WHERE da query SQL sem uso de bind parameters do driver pg.",
+  "entry_point": "Campo 'customer' do corpo JSON de POST /api/v1/invoices/search",
+  "trust_boundary": "Usuário autenticado (nível 'customer') → dados de faturamento de qualquer cliente no banco",
+  "location": {
+    "file": "src/billing/invoices.controller.ts",
+    "line": 142,
+    "route": "/api/v1/invoices/search",
+    "http_method": "POST",
+    "revision": "a1b2c3d"
+  },
+  "evidence": [
+    {
+      "type": "FACT",
+      "description": "A query é montada como `SELECT * FROM invoices WHERE customer = '${customer}'` antes de ser passada ao client pg.query() sem placeholders.",
+      "source": "src/billing/invoices.controller.ts:142"
+    },
+    {
+      "type": "FACT",
+      "description": "Nenhuma validação ou allowlist é aplicada ao valor de 'customer' antes da montagem da query.",
+      "source": "src/billing/invoices.controller.ts:128-140"
+    },
+    {
+      "type": "HYPOTHESIS",
+      "description": "Não foi possível confirmar se um middleware global de sanitização intercepta este payload antes do controller, pois o arquivo de configuração de middlewares não foi fornecido.",
+      "source": "não analisado — src/middlewares/*.ts ausente do escopo"
+    }
+  ],
+  "preconditions": [
+    "Usuário autenticado com qualquer papel que tenha acesso à rota de busca de faturas.",
+    "Nenhum WAF ou proxy intermediário bloqueando payloads com aspas simples (não verificado)."
+  ],
+  "probable_impact": "Exposição de dados de faturamento (valores, status de pagamento, identificadores) pertencentes a outros clientes.",
+  "reproduction": {
+    "controlled": false,
+    "reason_not_tested": "Sem autorização para testes ativos nesta sessão (ver runbooks/autorizacao-testes-ativos.md). PoC descrita abaixo, não executada."
+  },
+  "remediation": {
+    "suggestion": "Substituir a concatenação por parâmetro vinculado nativo do driver pg: `pg.query('SELECT * FROM invoices WHERE customer = $1', [customer])`.",
+    "compensating_controls": "Nenhum controle compensatório identificado no código analisado.",
+    "safe_validation": "Reexecutar a mesma consulta com o valor `' OR '1'='1` após a correção e confirmar que a query retorna erro de parâmetro inválido ou nenhum resultado, em vez de todos os registros."
+  },
+  "evidence_gaps": [
+    "Configuração de middlewares globais (src/middlewares/*.ts) não fornecida — pode haver sanitização adicional não avaliada.",
+    "Não há confirmação dinâmica (teste ativo) da exploração, apenas análise estática do caminho de dados."
+  ]
+}

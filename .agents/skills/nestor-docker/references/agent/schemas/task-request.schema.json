@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.nestor.local/docker/1.0/task-request.schema.json",
+  "title": "Nestor Docker task request",
+  "description": "Contrato de entrada, inclusive limites de operação",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "dev",
+        "test",
+        "homolog",
+        "prod",
+        "unknown"
+      ]
+    },
+    "docker_context": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "repository_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "project": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requested_mode": {
+      "type": "string",
+      "enum": [
+        "inspect",
+        "edit_files",
+        "test_isolated",
+        "operate",
+        "critical"
+      ]
+    },
+    "authorized_operations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "objective",
+    "environment",
+    "requested_mode",
+    "authorized_operations"
+  ],
+  "additionalProperties": false
+}

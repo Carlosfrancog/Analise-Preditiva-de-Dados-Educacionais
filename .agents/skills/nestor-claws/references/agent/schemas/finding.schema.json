@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nestor-claws.local/schemas/finding.schema.json",
+  "title": "Achado de auditoria — Nestor Claws",
+  "description": "Estrutura de um achado de segurança, mapeando todos os required_fields de spec.json#output_contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "state",
+    "severity",
+    "confidence",
+    "affected_assets",
+    "root_cause",
+    "entry_point",
+    "trust_boundary",
+    "location",
+    "evidence",
+    "preconditions",
+    "probable_impact",
+    "reproduction",
+    "remediation",
+    "evidence_gaps"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Identificador único e estável do achado dentro da auditoria (ex.: NC-2026-001)."
+    },
+    "title": {
+      "type": "string",
+      "description": "Título curto e específico (ex.: 'SQL Injection em POST /invoices/search')."
+    },
+    "state": {
+      "type": "string",
+      "description": "Estado do achado.",
+      "enum": ["candidate", "verified", "mitigated", "false_positive", "pending_review"]
+    },
+    "severity": {
+      "type": "object",
+      "description": "Severidade justificada, avaliada separadamente da confiança da evidência.",
+      "additionalProperties": false,
+      "required": ["level", "justification"],
+      "properties": {
+        "level": { "type": "string", "enum": ["info", "low", "medium", "high", "critical"] },
+        "justification": { "type": "string" },
+        "cvss": {
+          "type": "object",
+          "description": "Opcional. Só pode ser preenchido quando método e vetor são declarados (principles.md).",
+          "additionalProperties": false,
+          "required": ["version", "vector", "score"],
+          "properties": {
+            "version": { "type": "string", "examples": ["3.1", "4.0"] },
+            "vector": { "type": "string" },
+            "score": { "type": "number", "minimum": 0, "maximum": 10 }
+          }
+        }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "description": "Confiança da evidência, avaliada separadamente da severidade do risco.",
+      "additionalProperties": false,
+      "required": ["level", "rationale"],
+      "properties": {
+        "level": { "type": "string", "enum": ["low", "medium", "high"] },
+        "rationale": { "type": "string" }
+      }
+    },
+    "affected_assets": {
+      "type": "array",
+      "description": "Ativos afetados (serviço, tabela, rota, componente).",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "root_cause": {
+      "type": "string",
+      "description": "Causa raiz técnica do problema."
+    },
+    "entry_point": {
+      "type": "string",
+      "description": "Ponto de entrada da falha (parâmetro, header, campo de formulário, mensagem de fila)."
+    },
+    "trust_boundary": {
+      "type": "string",
+      "description": "Fronteira de confiança atravessada (ex.: usuário anônimo → dados de outro usuário; tenant A → tenant B)."
+    },
+    "location": {
+      "type": "object",
+      "description": "Localização exata do achado. Ao menos um de file+line, route, ou config deve ser preenchido.",
+      "additionalProperties": false,
+      "required": ["revision"],
+      "properties": {
+        "file": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "route": { "type": "string", "description": "Ex.: '/api/v1/orders/:id'." },
+        "http_method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"]
+        },
+        "config": { "type": "string", "description": "Caminho do arquivo de configuração, se aplicável." },
+        "revision": { "type": "string", "description": "Revisão/commit do projeto analisado." }
+      },
+      "anyOf": [
+        { "required": ["file", "line"] },
+        { "required": ["route"] },
+        { "required": ["config"] }
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "description": "Evidências observadas, cada uma rotulada conforme policies/context-policy.md.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "description"],
+        "properties": {
+          "type": { "type": "string", "enum": ["FACT", "INFERENCE", "HYPOTHESIS", "UNKNOWN"] },
+          "description": { "type": "string" },
+          "source": { "type": "string", "description": "Arquivo, linha, log ou ferramenta de origem." }
+        }
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "description": "Pré-condições necessárias para exploração.",
+      "items": { "type": "string" }
+    },
+    "probable_impact": {
+      "type": "string",
+      "description": "Impacto provável caso a falha seja explorada."
+    },
+    "reproduction": {
+      "type": "object",
+      "description": "Reprodução controlada ou motivo da ausência de teste ativo.",
+      "additionalProperties": false,
+      "required": ["controlled"],
+      "properties": {
+        "controlled": {
+          "type": "boolean",
+          "description": "true somente se um teste ativo autorizado foi de fato executado."
+        },
+        "steps": {
+          "type": "array",
+          "description": "Obrigatório quando controlled = true. Passos exatos executados.",
+          "items": { "type": "string" }
+        },
+        "reason_not_tested": {
+          "type": "string",
+          "description": "Obrigatório quando controlled = false. Ex.: 'sem autorização para testes ativos nesta sessão'."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "controlled": { "const": true } } },
+          "then": { "required": ["steps"] }
+        },
+        {
+          "if": { "properties": { "controlled": { "const": false } } },
+          "then": { "required": ["reason_not_tested"] }
+        }
+      ]
+    },
+    "remediation": {
+      "type": "object",
+      "description": "Correção sugerida, controles compensatórios e forma segura de validação.",
+      "additionalProperties": false,
+      "required": ["suggestion", "safe_validation"],
+      "properties": {
+        "suggestion": { "type": "string" },
+        "compensating_controls": { "type": "string" },
+        "safe_validation": {
+          "type": "string",
+          "description": "Como confirmar a correção sem efeito colateral em dados ou produção."
+        }
+      }
+    },
+    "evidence_gaps": {
+      "type": "array",
+      "description": "Lacunas de evidência e cobertura — o que impede uma conclusão mais forte.",
+      "items": { "type": "string" }
+    }
+  }
+}

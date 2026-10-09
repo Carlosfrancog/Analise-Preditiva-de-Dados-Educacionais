@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "task_id": "example-docker-001",
+  "environment": "homolog",
+  "objective": "Planejar correção de configuração após confirmar causa do restart loop",
+  "risk_level": "L3",
+  "targets": ["api"],
+  "changes": [
+    {
+      "action": "recreate_service",
+      "target": "api",
+      "reason": "Exemplo ilustrativo; aguardar diagnóstico real antes de selecionar ação",
+      "approval_required": true
+    }
+  ],
+  "authorization": {"status": "required", "reference": null},
+  "data_impact": "Desconhecido; mapear volumes antes de agir",
+  "service_impact": "Possível indisponibilidade e encerramento de conexões",
+  "preconditions": ["Confirmar contexto Docker e projeto", "Avaliar dados persistentes"],
+  "validation_steps": ["Validar Compose", "Verificar health", "Executar smoke tests"],
+  "rollback_steps": ["Restaurar config versionada anterior e imagem previamente identificada; verificar limites de reversão de dados"],
+  "risks": [{"description": "Interrupção temporária do serviço", "severity": "medium", "mitigation": "Agendar janela e acompanhar métricas"}]
+}

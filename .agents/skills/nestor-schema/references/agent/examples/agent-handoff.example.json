@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "from_agent": "Nestor Schema",
+  "to_agent": "Nestor Reader",
+  "repository": "PROJETO_FICTICIO",
+  "goal": "Confirmar relação declarada no exemplo.",
+  "evidence_refs": [
+    "src-1"
+  ],
+  "requests": [
+    "Localizar migration que cria a tabela referenciada, com caminho e linha.",
+    "Verificar regras de cardinalidade nos serviços reais."
+  ],
+  "authorization_required": false,
+  "status": "draft"
+}

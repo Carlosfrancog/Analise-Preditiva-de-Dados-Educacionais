@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "repository": "PROJETO_FICTICIO",
+  "commit": "UNKNOWN",
+  "sources": [
+    {
+      "id": "src-1",
+      "path": "app/Models/RegistroExemplo.php",
+      "line": 12,
+      "symbol": "RegistroExemplo::belongsTo",
+      "label": "FACT",
+      "observation": "Método de relação belongsTo declarado no código fictício. Não comprova existência de FK física.",
+      "method": "read-code"
+    }
+  ],
+  "entities": [
+    {
+      "name": "registros_exemplo",
+      "status": "HYPOTHESIS",
+      "purpose": "Tabela ilustrativa, não derivada de projeto real.",
+      "evidence_refs": [
+        "src-1"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "evidence_refs": []
+        },
+        {
+          "name": "referencia_id",
+          "type": "bigint",
+          "nullable": true,
+          "evidence_refs": [
+            "src-1"
+          ]
+        }
+      ],
+      "candidate_constraints": [
+        {
+          "kind": "foreign_key",
+          "definition": "referencia_id -> referencias_exemplo.id (a confirmar)",
+          "justification": "Hipótese a validar a partir da relação declarada."
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "registros_exemplo",
+      "to": "referencias_exemplo",
+      "cardinality": "unknown",
+      "nullable": true,
+      "evidence_refs": [
+        "src-1"
+      ],
+      "status": "HYPOTHESIS",
+      "deletion_policy": "UNKNOWN"
+    }
+  ],
+  "decisions": [
+    {
+      "question": "Qual cardinalidade efetiva e política de exclusão?",
+      "status": "open",
+      "options": [
+        "Confirmar no domínio",
+        "Inspecionar migrations reais"
+      ]
+    }
+  ],
+  "unknowns": [
+    "Schema físico não inspecionado."
+  ]
+}

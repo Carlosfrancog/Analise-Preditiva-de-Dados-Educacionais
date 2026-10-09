@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Nestor Schema Migration Plan 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository",
+    "scope",
+    "risk_level",
+    "changes",
+    "stages",
+    "prechecks",
+    "postchecks",
+    "rollback",
+    "execution"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ]
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact",
+          "action",
+          "reason",
+          "evidence_refs"
+        ],
+        "properties": {
+          "artifact": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "objective",
+          "requires_authorized_executor"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "requires_authorized_executor": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "prechecks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "postchecks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy",
+        "data_recovery_guaranteed"
+      ],
+      "properties": {
+        "strategy": {
+          "type": "string"
+        },
+        "data_recovery_guaranteed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executed",
+        "status"
+      ],
+      "properties": {
+        "executed": {
+          "const": false
+        },
+        "status": {
+          "enum": [
+            "NOT_RUN",
+            "BLOCKED"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nestor Reader"
+  short_description: "Analisa projetos com contexto estrutural compacto"
+  default_prompt: "Use $nestor-reader para mapear este projeto, seus fluxos, dependências, riscos e pontos desconhecidos."
