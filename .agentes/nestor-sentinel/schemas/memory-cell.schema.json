@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Nestor Memory Cell",
+  "type": "object",
+  "required": ["id", "schema", "agent", "type", "scope", "status", "instruction"],
+  "properties": {
+    "id": {"type": "string"},
+    "schema": {"const": "nestor.memory-cell.v1"},
+    "agent": {"type": "string"},
+    "type": {"type": "string"},
+    "scope": {"enum": ["task", "project", "agent", "ecosystem"]},
+    "status": {"enum": ["proposed", "accepted", "active", "superseded", "archived", "rejected"]},
+    "instruction": {"type": "string"},
+    "priority": {"enum": ["low", "medium", "high", "critical"]}
+  }
+}

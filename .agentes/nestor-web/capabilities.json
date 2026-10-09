@@ -1,0 +1,13 @@
+{
+  "schema": "nestor.capabilities.v1",
+  "agent": "nestor-web",
+  "capabilities": [
+    "react",
+    "vite",
+    "tailwindcss",
+    "web-accessibility",
+    "user-flows",
+    "frontend-api-integration",
+    "responsive-interface"
+  ]
+}

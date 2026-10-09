@@ -2,6 +2,8 @@ __pycache__/
 build/
 dist/
 *.json
+!.agentes/**/*.json
+/EDUPREDICT_PACOTE_COMPLETO_2026-10-09.zip
 *.csv
 EduNotas.spec
 *db

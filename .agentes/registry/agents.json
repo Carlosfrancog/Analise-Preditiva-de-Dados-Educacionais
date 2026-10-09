@@ -1,0 +1,21 @@
+{
+  "schema": "nestor.agents.v1",
+  "agents": [
+    {
+      "id": "nestor-sentinel",
+      "name": "Nestor Sentinel",
+      "version": "0.1.0",
+      "status": "active",
+      "description": "Agente técnico especializado inicialmente em Go, áudio em tempo real, redes, performance e análise de arquitetura.",
+      "capabilities_file": "../nestor-sentinel/capabilities.json"
+    },
+    {
+      "id": "nestor-web",
+      "name": "Nestor Web",
+      "version": "0.1.0",
+      "status": "active",
+      "description": "Agente do EPA para interface React, acessibilidade e integração web/API, com foco inicial em alunos e notas.",
+      "capabilities_file": "../nestor-web/capabilities.json"
+    }
+  ]
+}

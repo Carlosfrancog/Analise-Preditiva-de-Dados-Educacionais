@@ -1,0 +1,21 @@
+id: cell-YYYYMMDD-0001
+schema: nestor.memory-cell.v1
+agent: nestor-sentinel
+type: correction
+scope: project
+status: proposed
+created_at: YYYY-MM-DDTHH:MM:SSZ
+trigger:
+  type: developer_feedback
+subject:
+  subsystem: unknown
+  component: unknown
+instruction: >-
+  Descreva a instrução aprendida de forma objetiva.
+reason: >-
+  Explique por que esta célula existe.
+evidence:
+  - user-confirmed
+priority: medium
+supersedes: []
+conflicts_with: []

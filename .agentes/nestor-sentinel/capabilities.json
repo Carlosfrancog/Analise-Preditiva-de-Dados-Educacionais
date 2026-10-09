@@ -1,0 +1,19 @@
+{
+  "schema": "nestor.capabilities.v1",
+  "agent": "nestor-sentinel",
+  "capabilities": [
+    "golang",
+    "audio-streaming",
+    "pcm",
+    "dsp-basics",
+    "networking",
+    "websocket",
+    "udp-rtp",
+    "hls",
+    "aws-speech",
+    "performance-analysis",
+    "concurrency-analysis",
+    "static-analysis",
+    "architecture-audit"
+  ]
+}
