@@ -1,5 +1,7 @@
 [← Raiz](../README.md)
 
+> **Arquivo histórico (TGI I / aplicativo desktop).** Este índice pode conter caminhos, métricas e afirmações que não descrevem a plataforma web ou os resultados do TGI II. Para instalar e executar a versão atual, use o [README da raiz](../README.md).
+
 ---
 
 # 📘 ÍNDICE - SISTEMA DE MACHINE LEARNING PARA PREVISÃO ACADÊMICA

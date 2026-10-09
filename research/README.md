@@ -1,12 +1,15 @@
 # Pipeline de pesquisa do EduPredict
 
-Esta pasta contém a implementação experimental usada para produzir as
-evidências do Full Paper. Ela é separada do código legado em `02-ML`, `03-GUI`
-e `04-API`.
+Esta pasta contém a implementação experimental do TGI II. Ela prepara
+artefatos e verificações técnicas iniciais, ainda sem o protocolo de validação
+final do artigo. A pipeline é separada do código legado em `02-ML` e `03-GUI`;
+a API a expõe em `/api/research` sem convertê-la em resultado acadêmico final.
 
 ## Execução rápida
 
-Na raiz de `repo-analysis`:
+Na raiz do repositório EPA, com as dependências de `04-API/requirements.txt` instaladas:
+
+> Execute apenas quando quiser regenerar o experimento. O comando escreve em `research/data/`, `research/artifacts/` e `research/reports/`.
 
 ```bash
 python -m research.run_initial_pipeline
@@ -76,4 +79,4 @@ pytest -q research/tests
 Os resultados gerados são um primeiro experimento técnico. Ainda não são os
 resultados finais do artigo. Antes da publicação, o protocolo deverá receber a
 validação temporal e agrupada final, revisão de qualidade dos rótulos,
-calibração, análise de equidade e integração com a API.
+calibração, análise de equidade e integração de snapshots versionados com a API.

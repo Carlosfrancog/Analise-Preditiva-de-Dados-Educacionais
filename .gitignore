@@ -1,4 +1,8 @@
 __pycache__/
+.venv/
+.venv-win/
+.venv-wsl/
+.pytest_cache/
 build/
 dist/
 *.json
